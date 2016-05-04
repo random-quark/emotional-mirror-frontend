@@ -40,7 +40,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
     ofTrueTypeFont::setGlobalDpi(72);
     font.load("Helvetica.ttf", 24, true, true);//, true);
     location = _location;
-    location.y -= 100;
+//    location.y -= 100;
     //profileImage.load(profileImageUrl);
     moodLevel = _moodLevel;
     display = true;
@@ -113,12 +113,13 @@ void Tweet::update() {
 }
 
 void Tweet::draw() {
+    
     if (bubblePoints.size()>0) {
      ofPushMatrix();
 
     ofPushStyle();
     ofTranslate(location);
-
+        
     ofSetColor(colors.bgColor);
 
     ofBeginShape();
@@ -142,8 +143,7 @@ void Tweet::draw() {
    ofSetColor(colors.birdColor);
    ofFill();
    bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + BIRD_SIZE / 2) , 50, 40.65);
-   ofPopStyle();
-
+    ofPopStyle();
     ofPopMatrix();
   }
 }

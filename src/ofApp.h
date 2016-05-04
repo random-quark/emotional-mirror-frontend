@@ -21,33 +21,19 @@ public:
 	void update();
 	void draw();
 	void keyPressed(int key);
-    void ageTweets();
-    void drawTweet(Tweet tweet, int i);
     void sendExpression();
     void drawDebuggingTools();
-    void drawMood();
-    void drawBars();
-    void drawStandard();
-    void drawThought(Tweet tweet);
-    string expression;
-
-    ofRectangle faceLocation;
-
-    bool debug;
-    bool searchError;
-
-	ofVideoGrabber cam;
-    ofImage flippedCam;
-	ofxFaceTracker tracker;
-
-    vector<Tweet> tweets;
-
-
-	ExpressionClassifier classifier;
-
-    ofColor faceColor;
-    int faceLineWidth;
-
     void urlResponse(ofHttpResponse & response);
 
+    ofVideoGrabber cam;
+    ofImage flippedCam;
+    ofxFaceTracker tracker;
+    ofPoint faceLocation;
+    vector<Tweet> tweets;
+    bool debug;
+    bool searchError;
+	ExpressionClassifier classifier;
+    ofColor faceColor;
+    int faceLineWidth;
+    string expression;
 };

@@ -59,6 +59,8 @@ void ofApp::update() {
         if (ofGetFrameNum() % 60) {
     //        sendExpression();
         }
+        
+        faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
     }
 }
 
@@ -70,7 +72,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         Json::Value tweetsJSON = result["tweets"];
         cout << "size tweet" << tweetsJSON.size() << endl;
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
-            ofPoint location = ofPoint((faceLocation.x + faceLocation.width) * CAM_SCALE, faceLocation.y * CAM_SCALE);
+            ofPoint location = ofPoint(faceLocation.x, faceLocation.y);
             Tweet tweet;
             tweet.setup(location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asInt(), 0, 10);
             tweets.push_back(tweet);
@@ -123,12 +125,6 @@ void ofApp::drawDebuggingTools() {
     ofPopMatrix();
     ofPopStyle();
 
-    ofNoFill();
-    for(unsigned int i = 0; i < finder.blobs.size(); i++) {
-        ofRectangle cur = finder.blobs[i].boundingRect;
-        ofDrawRectangle(cur.x * CAM_SCALE, cur.y * CAM_SCALE, cur.width * CAM_SCALE, cur.height * CAM_SCALE);
-    }
-
     if (searchError) {
         ofDrawRectangle(0, 0, WIDTH, 20);
         ofDrawBitmapString("Could not connect to server", 200, 10);
@@ -159,9 +155,11 @@ void ofApp::draw() {
     ofPopStyle();
     ofPopMatrix();
 
+
     for (int i=0; i<tweets.size(); i++) {
         tweets[i].draw();
     }
+
 
     if (debug) {
         drawDebuggingTools();
@@ -175,7 +173,7 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'c') {
         Tweet tweet;
-        ofPoint location = ofPoint((faceLocation.x + (faceLocation.width / 2)) * CAM_SCALE, faceLocation.y * CAM_SCALE);
+        ofPoint location = ofPoint((ofGetWidth() / WIDTH) * faceLocation.x, ((ofGetHeight() / HEIGHT) * faceLocation.y) - 250);
         tweet.setup(location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
         tweets.push_back(tweet);
     }
