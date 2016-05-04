@@ -58,9 +58,11 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
 
     //easing
     initTime = ofGetElapsedTimef();
-    initLocation = location.y;
-    endLocation = 0;
-
+    initLocationY = location.y;
+    initLocationX = location.x;
+    endLocationY = 0;
+    endLocationX = ofRandom(0, 1) > 0.5 ? 0 : ofGetWidth();
+    
     bird.load("twitter-bird.png");
 
     //cloud stuff
@@ -98,7 +100,9 @@ void Tweet::update() {
     auto duration = 6.f;
     auto endTime = initTime + duration;
     auto now = ofGetElapsedTimef();
-    location.y = ofxeasing::map(now, initTime, endTime, initLocation, endLocation, &ofxeasing::quad::easeIn);
+    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::quad::easeIn);
+    
+    location.x = ofxeasing::map(now, initTime, endTime, initLocationX, endLocationX, &ofxeasing::quad::easeIn);
 
     //bubble stuff
     bubblePoints.clear();
