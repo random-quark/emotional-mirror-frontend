@@ -215,9 +215,10 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'c') {
         Tweet tweet;
-        tweet.setup(ofPoint(mouseX, mouseY), "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
+        cout << "boom" << endl;
+        ofPoint location = ofPoint((faceLocation.x + (faceLocation.width / 2)) * CAM_SCALE, faceLocation.y * CAM_SCALE);
+        tweet.setup(location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
         tweets.push_back(tweet);
-        cout << "HERE: " << tweets.size() << endl;
     }
 	if(key == 'f') {
 		tracker.reset();
