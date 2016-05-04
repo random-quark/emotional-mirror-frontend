@@ -6,7 +6,6 @@ using namespace cv;
 
 void ofApp::setup() {
     ofSetFullscreen(true);
-    ofSetCircleResolution(500);
     debug = false;
 
 	cam.initGrabber(WIDTH, HEIGHT);
@@ -17,10 +16,7 @@ void ofApp::setup() {
 
     flippedCam.allocate(WIDTH, HEIGHT, OF_IMAGE_COLOR);
 
-    //finder.setup("haarcascade_frontalface_default.xml");
-
     ofRegisterURLNotification(this);
-    searchFailCount = 1;
 
     faceColor = ofColor(0,0,0);
     faceLineWidth = 3;

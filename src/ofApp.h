@@ -31,16 +31,7 @@ public:
     void drawThought(Tweet tweet);
     string expression;
 
-    ofVec2f mouth;
-    ofPolyline mouthLine;
-    ofPolyline innerMouthLine;
-
     ofRectangle faceLocation;
-    ofPoint prevLocation;
-
-    ofxCvHaarFinder finder;
-
-    ofImage tweetBackground;
 
     bool debug;
     bool searchError;
@@ -51,8 +42,6 @@ public:
 
     vector<Tweet> tweets;
 
-    //ofTrueTypeFont helvetica;
-    //ofTrueTypeFont futura;
 
 	ExpressionClassifier classifier;
 
@@ -61,6 +50,4 @@ public:
 
     void urlResponse(ofHttpResponse & response);
 
-    int searchFailCount;
-    bool searchInProgress;
 };
