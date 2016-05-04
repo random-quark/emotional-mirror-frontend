@@ -22,6 +22,10 @@ using namespace std;
 
 class Tweet {
 public:
+    float initTime;
+    int initLocation;
+    int endLocation;
+    
     string text;
     string author;
     ofImage profileImage;
@@ -59,12 +63,15 @@ public:
     struct TweetColors {
         ofColor bgColor;
         ofColor textColor;
+        ofColor birdColor;
     };
     
     int totalRays;
     int radius;
     float angleStep;
     vector<float> noiseSeeds;
+    
+    ofImage bird;
     
     Tweet(ofTrueTypeFont font, ofPoint location, string text, string author, string profileImageUrl, int moodLevel, int timestamp, int paddingWidth, int paddingHeight);
     
