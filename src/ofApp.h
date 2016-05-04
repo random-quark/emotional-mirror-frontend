@@ -16,9 +16,7 @@
 #define VERTICAL false
 
 class ofApp : public ofBaseApp {
-public:    
-    const Boolean bars = false;
-    
+public:
 	void setup();
 	void update();
 	void draw();
@@ -32,37 +30,37 @@ public:
     void drawStandard();
     void drawThought(Tweet tweet);
     string expression;
-    
+
     ofVec2f mouth;
     ofPolyline mouthLine;
     ofPolyline innerMouthLine;
-    
+
     ofRectangle faceLocation;
     ofPoint prevLocation;
-    
+
     ofxCvHaarFinder finder;
-    
+
     ofImage tweetBackground;
-        
-    Boolean debug;
-    Boolean searchError;
-	
+
+    bool debug;
+    bool searchError;
+
 	ofVideoGrabber cam;
     ofImage flippedCam;
 	ofxFaceTracker tracker;
-    
+
     vector<Tweet> tweets;
-    
+
     //ofTrueTypeFont helvetica;
     //ofTrueTypeFont futura;
-    
+
 	ExpressionClassifier classifier;
-        
+
     ofColor faceColor;
     int faceLineWidth;
-    
+
     void urlResponse(ofHttpResponse & response);
-    
+
     int searchFailCount;
     bool searchInProgress;
 };

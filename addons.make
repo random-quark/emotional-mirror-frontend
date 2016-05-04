@@ -1,6 +1,6 @@
-ofxGui
-ofxOpenCv
 ofxCv
 ofxEasing
 ofxFaceTracker
+ofxGui
 ofxJSON
+ofxOpenCv

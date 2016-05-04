@@ -4,24 +4,24 @@
 using namespace ofxCv;
 using namespace cv;
 
-void ofApp::setup() {    
+void ofApp::setup() {
     ofSetFullscreen(true);
     ofSetCircleResolution(500);
     debug = false;
-    
+
 	cam.initGrabber(WIDTH, HEIGHT);
-    
+
 	tracker.setup();
 	tracker.setRescale(.5);
     classifier.load("expressions");
-    
+
     flippedCam.allocate(WIDTH, HEIGHT, OF_IMAGE_COLOR);
-    
+
     finder.setup("haarcascade_frontalface_default.xml");
-    
+
     ofRegisterURLNotification(this);
     searchFailCount = 1;
-    
+
     faceColor = ofColor(0,0,0);
     faceLineWidth = 3;
 }
@@ -40,17 +40,17 @@ void ofApp::update() {
 
 
 	cam.update();
-    
+
     if(cam.isFrameNew()) {
         flippedCam = cam.getPixels();
         flippedCam.mirror(false, true);
     }
-    
+
     ofImage smallCam;
     smallCam.clone(flippedCam);
     smallCam.resize(WIDTH / CAM_SCALE, HEIGHT / CAM_SCALE);
     finder.findHaarObjects(smallCam);
-    
+
     int biggest = 0;
     int record = -1;
     for(unsigned int i = 0; i < finder.blobs.size(); i++) {
@@ -63,11 +63,11 @@ void ofApp::update() {
         return;
     }
     faceLocation = finder.blobs[record].boundingRect;
-    
+
     ofImage face;
-    
+
     face.clone(flippedCam);
-    
+
     int x = (faceLocation.x * CAM_SCALE) - 50;
     if (x < 0) x = 0;
     int y = (faceLocation.y * CAM_SCALE) - 50;
@@ -80,17 +80,17 @@ void ofApp::update() {
     if(tracker.update(toCv(face))) {
         classifier.classify(tracker);
     }
-    
+
     float happy = classifier.getProbability(0);
     float sad = classifier.getProbability(1);
-    
+
     faceColor.g = ofMap(happy, 0, 1, 0, 255);
     faceColor.r = ofMap(sad, 0, 1, 0, 255);
-    
+
     int primaryExpression = classifier.getPrimaryExpression();
     float primaryExpressionProbability = classifier.getProbability(primaryExpression);
     faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-    
+
     if (ofGetFrameNum() % 60) {
 //        sendExpression();
     }
@@ -100,7 +100,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
     if (response.status==200) {
         ofxJSONElement result = response.data.getText();
         searchError = false;
-        
+
         Json::Value tweetsJSON = result["tweets"];
         cout << "size tweet" << tweetsJSON.size() << endl;
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
@@ -118,27 +118,27 @@ void ofApp::urlResponse(ofHttpResponse & response) {
 void ofApp::sendExpression() {
     int primary = classifier.getPrimaryExpression();
     expression = classifier.getDescription(primary);
-    
+
     string url = "";
     if (expression == "smile") {
         url = "http://localhost:5000/search?&comp_rel=$gt&comp_value=0.6&randomize_results=True&max_results=1";
     } else if (expression == "sad") {
         url = "http://localhost:5000/search?&comp_rel=$lt&comp_value=-0.6&randomize_results=True&max_results=1";
     }
-    
+
     if (url=="") return;
-    
+
     ofLoadURLAsync(url);
 }
 
 void ofApp::drawDebuggingTools() {
     ofSetLineWidth(2);
-    
+
     ofPushMatrix();
     ofTranslate(faceLocation.x * CAM_SCALE - 50, faceLocation.y * CAM_SCALE - 50);
     tracker.draw();
     ofPopMatrix();
-    
+
     int w = 100, h = 12;
     ofPushStyle();
     ofPushMatrix();
@@ -159,18 +159,18 @@ void ofApp::drawDebuggingTools() {
     ofDrawBitmapString("Tweet count: " + to_string(tweets.size()), 5, 9);
     ofPopMatrix();
     ofPopStyle();
-    
+
     ofNoFill();
     for(unsigned int i = 0; i < finder.blobs.size(); i++) {
         ofRectangle cur = finder.blobs[i].boundingRect;
         ofDrawRectangle(cur.x * CAM_SCALE, cur.y * CAM_SCALE, cur.width * CAM_SCALE, cur.height * CAM_SCALE);
     }
-    
+
     if (searchError) {
         ofDrawRectangle(0, 0, WIDTH, 20);
         ofDrawBitmapString("Could not connect to server", 200, 10);
     }
-    
+
     ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
 }
 
@@ -183,9 +183,9 @@ void ofApp::draw() {
         ofRotate(90);
         ofTranslate(-(WIDTH / 2), -(HEIGHT / 2));
     }
-    
+
     flippedCam.draw(0,0);
-    
+
     ofPushMatrix();
     ofPushStyle();
     ofSetColor(faceColor);
@@ -194,12 +194,12 @@ void ofApp::draw() {
     tracker.draw();
     ofPopStyle();
     ofPopMatrix();
-    
-    
-    for (int i=0; i<tweets.size(); i++) {    
+
+
+    for (int i=0; i<tweets.size(); i++) {
         tweets[i].draw();
     }
-    
+
     if (debug) {
         drawDebuggingTools();
     }
@@ -208,10 +208,7 @@ void ofApp::draw() {
 
 void ofApp::keyPressed(int key) {
     if (key == 'd') {
-        if (debug) {
-            return debug = false;
-        }
-        debug = true;
+        debug = !debug;
     }
     if (key == 'c') {
         Tweet tweet;
@@ -235,7 +232,7 @@ void ofApp::keyPressed(int key) {
 	if(key == 'l') {
 		classifier.load("expressions");
 	}
-    
+
     if(key == 'h') {
         classifier.save("expressions");
     }

@@ -35,7 +35,7 @@ public:
 
     TweetColors getTweetColor(int alpha);
     TweetColors colors;
-    
+
     float initTime;
     int initLocation;
     int endLocation;
@@ -43,7 +43,7 @@ public:
     string author;
     //ofImage profileImage;
     int moodLevel;
-    Boolean display;
+    bool display;
     ofTrueTypeFont font;
     int paddingHeight;
     ofPoint location;
@@ -51,7 +51,7 @@ public:
     ofRectangle stringBox;
     int alpha;
     ofImage bird;
-    
+
     //bubble stuff
     float noiseSeed;
     int totalRays;
@@ -61,7 +61,7 @@ public:
     vector <float> radii;
     int ellipseWidthRad, ellipseHeightRad;
 
-    
+
 private:
     int ttl;
 };
