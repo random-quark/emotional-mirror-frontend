@@ -19,7 +19,7 @@ Tweet::TweetColors Tweet::getTweetColor(int alpha) {
     colors.bgColor = ofColor(255,255,255,alpha);
     colors.textColor = ofColor(0);
     colors.birdColor = ofColor(255,255,255);
-    
+
     if (moodLevel == 3) {
         colors.bgColor.set(255,255,255,alpha);
         colors.textColor.set(0,0,0,alpha);
@@ -45,34 +45,34 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
     moodLevel = _moodLevel;
     display = true;
     paddingHeight = _paddingHeight;
-    
+
     text = "@" + tweetAuthor + " " + tweetContent;
-    
+
     wrappedString = Util::wrapString(text, 350, font);
     stringBox = font.getStringBoundingBox(wrappedString,0,0);
-    
+
     int width = stringBox.width + paddingWidth;
     int height = stringBox.height + paddingHeight;
-    
+
     alpha = 0;
-    
+
     //easing
     initTime = ofGetElapsedTimef();
     initLocation = location.y;
     endLocation = 0;
-    
+
     bird.load("twitter-bird.png");
-    
+
     //cloud stuff
     totalRays = 20;
     stepSize = 100;
     ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2;
     ellipseHeightRad = stringBox.height / 2;
     noiseSeed = ofRandom(10000);
-    
+
     angleStep = 360.0 / totalRays;
     ofSetCircleResolution(60);
-    
+
     for (int i=0; i<totalRays; i++)
     {
         float tempRad = sqrt(pow(ellipseHeightRad*cos(ofDegToRad(i*angleStep)),2) + pow(ellipseWidthRad*sin(ofDegToRad(i*angleStep)),2));
@@ -90,16 +90,16 @@ void Tweet::update() {
     }
 
     colors = getTweetColor(alpha);
-    
+
     if (location.y < 0) {
         display = false;
     }
-    
+
     auto duration = 6.f;
     auto endTime = initTime + duration;
     auto now = ofGetElapsedTimef();
     location.y = ofxeasing::map(now, initTime, endTime, initLocation, endLocation, &ofxeasing::quad::easeIn);
-    
+
     //bubble stuff
     bubblePoints.clear();
     for (int i=0; i<totalRays; i++) {
@@ -113,33 +113,37 @@ void Tweet::update() {
 }
 
 void Tweet::draw() {
-    ofPushMatrix();
-    
+    if (bubblePoints.size()>0) {
+     ofPushMatrix();
+
     ofPushStyle();
     ofTranslate(location);
-    
+
     ofSetColor(colors.bgColor);
-    
+
     ofBeginShape();
-    ofCurveVertex(bubblePoints[totalRays-1]);
-    for (int i=0; i<totalRays; i++) {
-        ofCurveVertex(bubblePoints[i]);
-    }
-    ofCurveVertex(bubblePoints[0]);
-    ofCurveVertex(bubblePoints[1]);
+    //cout << bubblePoints.size() << endl;
+    ofCurveVertex(bubblePoints[bubblePoints.size()-1]);
+
+   for (int i=0; i<totalRays; i++) {
+       ofCurveVertex(bubblePoints[i]);
+   }
+   ofCurveVertex(bubblePoints[0]);
+   ofCurveVertex(bubblePoints[1]);
     ofEndShape();
 
-    if (!wrappedString.empty()) {
-        ofSetColor(colors.textColor);
-        font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), font.getLineHeight() - (stringBox.height / 2));
-    }
+   if (!wrappedString.empty()) {
+       ofSetColor(colors.textColor);
+       font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), font.getLineHeight() - (stringBox.height / 2));
+   }
     ofPopStyle();
 
-    ofPushStyle();
-    ofSetColor(colors.birdColor);
-    ofFill();
-    bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + BIRD_SIZE / 2) , 50, 40.65);
-    ofPopStyle();
-    
+   ofPushStyle();
+   ofSetColor(colors.birdColor);
+   ofFill();
+   bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + BIRD_SIZE / 2) , 50, 40.65);
+   ofPopStyle();
+
     ofPopMatrix();
+  }
 }

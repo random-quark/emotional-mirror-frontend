@@ -17,7 +17,7 @@ void ofApp::setup() {
 
     flippedCam.allocate(WIDTH, HEIGHT, OF_IMAGE_COLOR);
 
-    finder.setup("haarcascade_frontalface_default.xml");
+    //finder.setup("haarcascade_frontalface_default.xml");
 
     ofRegisterURLNotification(this);
     searchFailCount = 1;
@@ -159,7 +159,6 @@ void ofApp::draw() {
     ofSetLineWidth(faceLineWidth);
     
     ofScale(ofGetWidth() / WIDTH, ofGetHeight() / HEIGHT);
-    cout << WIDTH / ofGetWidth() << " " << HEIGHT / ofGetHeight() << endl;
     tracker.draw();
     ofPopStyle();
     ofPopMatrix();
@@ -180,7 +179,6 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'c') {
         Tweet tweet;
-        cout << "boom" << endl;
         ofPoint location = ofPoint((faceLocation.x + (faceLocation.width / 2)) * CAM_SCALE, faceLocation.y * CAM_SCALE);
         tweet.setup(location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
         tweets.push_back(tweet);
