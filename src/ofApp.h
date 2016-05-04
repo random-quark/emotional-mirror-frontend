@@ -10,9 +10,9 @@
 #define SENDER_PORT 12346
 #define SENDER_HOST "localhost"
 #define TWEET_LIFESPAN 300
-#define CAM_SCALE 4
-#define WIDTH 1440
-#define HEIGHT 900
+#define CAM_SCALE 20
+#define WIDTH 640.0
+#define HEIGHT 480.0
 #define VERTICAL false
 
 class ofApp : public ofBaseApp {

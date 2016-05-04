@@ -38,61 +38,31 @@ void ofApp::update() {
 //        }
 //    }
 
-
 	cam.update();
+    
+    ofImage smallCam;
 
     if(cam.isFrameNew()) {
         flippedCam = cam.getPixels();
         flippedCam.mirror(false, true);
-    }
-
-    ofImage smallCam;
-    smallCam.clone(flippedCam);
-    smallCam.resize(WIDTH / CAM_SCALE, HEIGHT / CAM_SCALE);
-    finder.findHaarObjects(smallCam);
-
-    int biggest = 0;
-    int record = -1;
-    for(unsigned int i = 0; i < finder.blobs.size(); i++) {
-        if (finder.blobs[i].area > biggest) {
-            record = i;
-            biggest = finder.blobs[i].area;
-        };
-    }
-    if (record < 0) {
-        return;
-    }
-    faceLocation = finder.blobs[record].boundingRect;
-
-    ofImage face;
-
-    face.clone(flippedCam);
-
-    int x = (faceLocation.x * CAM_SCALE) - 50;
-    if (x < 0) x = 0;
-    int y = (faceLocation.y * CAM_SCALE) - 50;
-    if (y < 0) y = 0;
-    int width = (faceLocation.width * CAM_SCALE) + 100;
-    if (width + x > WIDTH) width = WIDTH - x;
-    int height = (faceLocation.height * CAM_SCALE) + 100;
-    if (height + y > HEIGHT) width = HEIGHT - y;
-    face.crop(x, y, width, height);
-    if(tracker.update(toCv(face))) {
-        classifier.classify(tracker);
-    }
-
-    float happy = classifier.getProbability(0);
-    float sad = classifier.getProbability(1);
-
-    faceColor.g = ofMap(happy, 0, 1, 0, 255);
-    faceColor.r = ofMap(sad, 0, 1, 0, 255);
-
-    int primaryExpression = classifier.getPrimaryExpression();
-    float primaryExpressionProbability = classifier.getProbability(primaryExpression);
-    faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-
-    if (ofGetFrameNum() % 60) {
-//        sendExpression();
+        
+        if(tracker.update(toCv(flippedCam))) {
+            classifier.classify(tracker);
+        }
+    
+        float happy = classifier.getProbability(0);
+        float sad = classifier.getProbability(1);
+    
+        faceColor.g = ofMap(happy, 0, 1, 0, 255);
+        faceColor.r = ofMap(sad, 0, 1, 0, 255);
+    
+        int primaryExpression = classifier.getPrimaryExpression();
+        float primaryExpressionProbability = classifier.getProbability(primaryExpression);
+        faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
+    
+        if (ofGetFrameNum() % 60) {
+    //        sendExpression();
+        }
     }
 }
 
@@ -134,11 +104,6 @@ void ofApp::sendExpression() {
 void ofApp::drawDebuggingTools() {
     ofSetLineWidth(2);
 
-    ofPushMatrix();
-    ofTranslate(faceLocation.x * CAM_SCALE - 50, faceLocation.y * CAM_SCALE - 50);
-    tracker.draw();
-    ofPopMatrix();
-
     int w = 100, h = 12;
     ofPushStyle();
     ofPushMatrix();
@@ -157,6 +122,8 @@ void ofApp::drawDebuggingTools() {
     ofDrawBitmapString(faceColor.r, 5, 9);
     ofTranslate(0, h + 5);
     ofDrawBitmapString("Tweet count: " + to_string(tweets.size()), 5, 9);
+    ofTranslate(0, h + 5);
+    ofDrawBitmapString("Framerate: " + to_string(ofGetFrameRate()), 5, 9);
     ofPopMatrix();
     ofPopStyle();
 
@@ -184,17 +151,18 @@ void ofApp::draw() {
         ofTranslate(-(WIDTH / 2), -(HEIGHT / 2));
     }
 
-    flippedCam.draw(0,0);
+    flippedCam.draw(0,0,ofGetWidth(),ofGetHeight());
 
     ofPushMatrix();
     ofPushStyle();
     ofSetColor(faceColor);
     ofSetLineWidth(faceLineWidth);
-    ofTranslate(faceLocation.x * CAM_SCALE - 50, faceLocation.y * CAM_SCALE - 50);
+    
+    ofScale(ofGetWidth() / WIDTH, ofGetHeight() / HEIGHT);
+    cout << WIDTH / ofGetWidth() << " " << HEIGHT / ofGetHeight() << endl;
     tracker.draw();
     ofPopStyle();
     ofPopMatrix();
-
 
     for (int i=0; i<tweets.size(); i++) {
         tweets[i].draw();
