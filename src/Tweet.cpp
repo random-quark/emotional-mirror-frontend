@@ -9,23 +9,24 @@
 #include "Tweet.hpp"
 #include <ofTrueTypeFont.h>
 #include "Util.hpp"
+#include "ofxEasing.h"
 
 Tweet::TweetColors getTweetColor(Tweet tweet, int alpha) {
-    ofColor bgColor = ofColor(255,255,255,alpha);
-    ofColor textColor = ofColor(0);
+    Tweet::TweetColors colors;
+    colors.bgColor = ofColor(255,255,255,alpha);
+    colors.textColor = ofColor(0);
+    colors.birdColor = ofColor(255,255,255);
     
     if (tweet.moodLevel == 3) {
-        bgColor.set(255,255,255,alpha);
-        textColor.set(0,0,0,alpha);
+        colors.bgColor.set(255,255,255,alpha);
+        colors.textColor.set(0,0,0,alpha);
+        colors.birdColor.set(255,0,0,alpha);
     } else if (tweet.moodLevel == 1) {
-        bgColor.set(255,255,255,alpha);
-    } else {
-        bgColor.set(255,255,255,alpha);
+        colors.bgColor.set(255,255,255,alpha);
+        colors.birdColor.set(0,255,0,alpha);
     }
-    Tweet::TweetColors tweetColors;
-    tweetColors.bgColor = bgColor;
-    tweetColors.textColor = textColor;
-    return tweetColors;
+
+    return colors;
 }
 
 Tweet::Tweet(){
@@ -82,6 +83,14 @@ void Tweet::setup(ofTrueTypeFont _font, ofPoint _location, string tweetContent, 
     {
         noiseSeeds.push_back(ofRandom(10000));
     }
+    
+    //easing
+    initTime = ofGetElapsedTimef();
+    initLocation = location.y;
+    cout << "starting at " << initLocation;
+    endLocation = 0;
+    
+    bird.load("twitter-bird.png");
 }
 
 void Tweet::update() {
@@ -102,7 +111,14 @@ void Tweet::update() {
         display = false;
     }
     
-//    location.y -= 15;
+    auto duration = 4.f;
+    auto endTime = initTime + duration;
+    auto now = ofGetElapsedTimef();
+    location.y = ofxeasing::map(now, initTime, endTime, initLocation, endLocation, &ofxeasing::quad::easeIn);
+    
+    cout << "new loc " << location.y << endl;
+    
+    //location.y -= 15;
 //    if (location.y - initRadiusHeight > HEIGHT) {
 //        display = false;
 //    }
@@ -145,6 +161,12 @@ void Tweet::draw() {
         
         font.drawString(wrappedString, 0, font.getLineHeight() + (paddingHeight / 4));
     }
+    
+    ofPushStyle();
+    ofSetColor(colors.birdColor);
+    ofFill();
+    bird.draw(ofPoint(0,0), 50, 50);
+    ofPopStyle();
     
     ofPopMatrix();
     ofPopStyle();
