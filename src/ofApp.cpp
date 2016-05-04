@@ -104,7 +104,8 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         cout << "size tweet" << tweetsJSON.size() << endl;
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint((faceLocation.x + faceLocation.width) * CAM_SCALE, faceLocation.y * CAM_SCALE);
-            Tweet tweet(helvetica, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asInt(), 1111111, 0, 10);
+            Tweet tweet;
+            tweet.setup(helvetica, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asInt(), 1111111, 0, 10);
             tweets.push_back(tweet);
         }
     } else {
@@ -193,6 +194,7 @@ void ofApp::draw() {
     ofTranslate(faceLocation.x * CAM_SCALE - 50, faceLocation.y * CAM_SCALE - 50);
     
     tracker.draw();
+
     
     ofPopStyle();
     ofPopMatrix();
@@ -210,6 +212,9 @@ void ofApp::draw() {
         drawDebuggingTools();
     }
     ofPopMatrix();
+
+    helvetica.drawString("hello", mouseX, mouseY);
+
 }
 
 void ofApp::keyPressed(int key) {
@@ -223,8 +228,10 @@ void ofApp::keyPressed(int key) {
 //        ofPoint location = ofPoint((faceLocation.x + (faceLocation.width / 2)) * CAM_SCALE, faceLocation.y * CAM_SCALE);
         ofPoint location = ofPoint(mouseX, mouseY);
         
-        Tweet tweet(helvetica, location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", "https://pbs.twimg.com/profile_images/684376066878738432/0JKXDV7__bigger.jpg", 3, 12345, 0, 30);
+        Tweet tweet;
+        tweet.setup(helvetica, location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", "https://pbs.twimg.com/profile_images/684376066878738432/0JKXDV7__bigger.jpg", 3, 12345, 0, 30);
         tweets.push_back(tweet);
+                cout << "drawn at: " << mouseX << " " << mouseY << endl;
     }
 	if(key == 'f') {
 		tracker.reset();

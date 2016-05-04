@@ -22,6 +22,8 @@ using namespace std;
 
 class Tweet {
 public:
+    Tweet();
+    
     string text;
     string author;
     ofImage profileImage;
@@ -32,6 +34,7 @@ public:
     ofTrueTypeFont font;
     
     void age();
+    void setup(ofTrueTypeFont _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, int _moodLevel, int _timestamp, int paddingWidth, int _paddingHeight);
     void draw();
     void update();
     int getTtl();
@@ -66,7 +69,6 @@ public:
     float angleStep;
     vector<float> noiseSeeds;
     
-    Tweet(ofTrueTypeFont font, ofPoint location, string text, string author, string profileImageUrl, int moodLevel, int timestamp, int paddingWidth, int paddingHeight);
     
 private:
     int ttl;

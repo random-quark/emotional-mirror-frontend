@@ -28,7 +28,11 @@ Tweet::TweetColors getTweetColor(Tweet tweet, int alpha) {
     return tweetColors;
 }
 
-Tweet::Tweet(ofTrueTypeFont _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, int _moodLevel, int _timestamp, int paddingWidth, int _paddingHeight) {
+Tweet::Tweet(){
+
+}
+
+void Tweet::setup(ofTrueTypeFont _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, int _moodLevel, int _timestamp, int paddingWidth, int _paddingHeight) {
     font = _font;
     location = _location;
     profileImage.load(profileImageUrl);
@@ -42,7 +46,7 @@ Tweet::Tweet(ofTrueTypeFont _font, ofPoint _location, string tweetContent, strin
     formResolution = 15;
     
     wrappedString = Util::wrapString(text, 350, font);
-    stringBox = font.getStringBoundingBox(wrappedString, 0, 0);
+    stringBox = font.getStringBoundingBox(wrappedString,0,0);
     
     int width = stringBox.width + paddingWidth;
     int height = stringBox.height + paddingHeight;
