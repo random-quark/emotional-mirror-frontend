@@ -5,7 +5,6 @@
 //  Created by Tom Chambers on 18/03/2016.
 //
 //
-
 using namespace std;
 
 #ifndef Tweet_hpp
@@ -23,57 +22,45 @@ using namespace std;
 class Tweet {
 public:
     Tweet();
-    float initTime;
-    int initLocation;
-    int endLocation;
-    
-    string text;
-    string author;
-    ofImage profileImage;
-    int timestamp;
-    int moodLevel;
-
-    Boolean display;
-    ofTrueTypeFont font;
-    
     void age();
-    void setup(ofTrueTypeFont _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, int _moodLevel, int _timestamp, int paddingWidth, int _paddingHeight);
+    void setup( ofPoint _location, string tweetContent, string tweetAuthor, int _moodLevel, int paddingWidth, int _paddingHeight);
     void draw();
     void update();
     int getTtl();
-    
-    int paddingHeight;
-    
-    ofPoint location;
-    
-    float centerX, centerY;
-    std::vector <float> x;
-    std::vector <float> y;
-    float stepSize;
-    int formResolution, initRadiusWidth, initRadiusHeight;
-    string wrappedString;
-    ofRectangle stringBox;
-
-    ofPoint velocity;
-    ofPoint force;
-    
-    float drag;
-    int minDist;
-    
-    int alpha;
-    
     struct TweetColors {
         ofColor bgColor;
         ofColor textColor;
         ofColor birdColor;
     };
+
+    TweetColors getTweetColor(int alpha);
+    TweetColors colors;
     
-    int totalRays;
-    int radius;
-    float angleStep;
-    vector<float> noiseSeeds;
-    
+    float initTime;
+    int initLocation;
+    int endLocation;
+    string text;
+    string author;
+    //ofImage profileImage;
+    int moodLevel;
+    Boolean display;
+    ofTrueTypeFont font;
+    int paddingHeight;
+    ofPoint location;
+    string wrappedString;
+    ofRectangle stringBox;
+    int alpha;
     ofImage bird;
+    
+    //bubble stuff
+    float noiseSeed;
+    int totalRays;
+    float angleStep;
+    float stepSize;
+    vector <ofPoint> bubblePoints;
+    vector <float> radii;
+    int ellipseWidthRad, ellipseHeightRad;
+
     
 private:
     int ttl;

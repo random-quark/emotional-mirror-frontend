@@ -53,8 +53,8 @@ public:
     
     vector<Tweet> tweets;
     
-    ofTrueTypeFont helvetica;
-    ofTrueTypeFont futura;
+    //ofTrueTypeFont helvetica;
+    //ofTrueTypeFont futura;
     
 	ExpressionClassifier classifier;
         
