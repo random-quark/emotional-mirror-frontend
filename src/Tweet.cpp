@@ -77,8 +77,9 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
 
     for (int i=0; i<totalRays; i++)
     {
-        float tempRad = sqrt(pow(ellipseHeightRad*cos(ofDegToRad(i*angleStep)),2) + pow(ellipseWidthRad*sin(ofDegToRad(i*angleStep)),2));
-        radii.push_back(tempRad);
+        float x = 0 + ellipseWidthRad * cos(ofDegToRad(angleStep*i));
+        float y = 0 + ellipseHeightRad * sin(ofDegToRad(angleStep*i));
+        bubblePoints.push_back(ofPoint(x,y));
     }
 
 }
@@ -116,46 +117,45 @@ void Tweet::update() {
     }
 
 
-    //bubble stuff
-    bubblePoints.clear();
-    //cout << noiseSeed << endl;
-    for (int i=0; i<totalRays; i++) {
-        float noisedRadius = radii[i] ;//+ ofNoise(noiseSeed + i*5.4) * stepSize;
-        float endX = sin(ofDegToRad(i*angleStep)) * noisedRadius;
-        float endY = cos(ofDegToRad(i*angleStep)) * noisedRadius;
-
-        bubblePoints.push_back(ofPoint(endX, endY));
-    }
-    noiseSeed+=0.03;
+    noiseSeed+=0.02;
 }
 
 void Tweet::draw() {
 
     if (bubblePoints.size()>0) {
-     ofPushMatrix();
-
+    ofPushMatrix();
     ofPushStyle();
     ofTranslate(location);
-
     ofSetColor(colors.bgColor);
 
+    //BUBBLE SHAPE
     ofBeginShape();
-    //cout << bubblePoints.size() << endl;
-    ofCurveVertex(bubblePoints[bubblePoints.size()-1]);
-
-   for (int i=0; i<totalRays; i++) {
-       ofCurveVertex(bubblePoints[i]);
-   }
-   ofCurveVertex(bubblePoints[0]);
-   ofCurveVertex(bubblePoints[1]);
+        ofNoFill();
+    // start controlpoint
+    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,0.8, 1.5);
+    ofCurveVertex(bubblePoints[totalRays-1]);
+    // only these points are drawn //////
+    for (int i=0; i<totalRays; i++)
+    {
+        scale = ofMap(ofNoise(noiseSeed + i*5.3),0,1,0.8, 1.5);
+        ofCurveVertex(bubblePoints[i].x * scale,bubblePoints[i].y * scale);
+        //ofDrawCircle(bubblePoints[i],5);
+    }
+    scale = ofMap(ofNoise(noiseSeed + 0*5.3),0,1,0.8, 1.5);
+    ofCurveVertex(bubblePoints[0].x * scale,bubblePoints[0].y * scale);
+    // end controlpoint
+    scale = ofMap(ofNoise(noiseSeed + 1*5.3),0,1,0.8, 1.5);
+    ofCurveVertex(bubblePoints[1].x * scale, bubblePoints[1].y * scale);
     ofEndShape();
-
+    
+    // STRING STUFF
    if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);
        font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), font.getLineHeight() - (stringBox.height / 2));
    }
     ofPopStyle();
 
+   // BIRD STUFF
    ofPushStyle();
    ofSetColor(colors.birdColor);
    ofFill();

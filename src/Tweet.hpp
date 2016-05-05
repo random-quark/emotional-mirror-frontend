@@ -59,9 +59,8 @@ public:
     float angleStep;
     float stepSize;
     vector <ofPoint> bubblePoints;
-    vector <float> radii;
     int ellipseWidthRad, ellipseHeightRad;
-
+    
 
 
 private:
