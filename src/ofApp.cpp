@@ -35,31 +35,33 @@ void ofApp::update() {
 //    }
 
 	cam.update();
-    
+
     ofImage smallCam;
 
     if(cam.isFrameNew()) {
         flippedCam = cam.getPixels();
         flippedCam.mirror(false, true);
-        
+
+        if (VERTICAL) flippedCam.rotate90(1);
+
         if(tracker.update(toCv(flippedCam))) {
             classifier.classify(tracker);
         }
-    
+
         float happy = classifier.getProbability(0);
         float sad = classifier.getProbability(1);
-    
+
         faceColor.g = ofMap(happy, 0, 1, 0, 255);
         faceColor.r = ofMap(sad, 0, 1, 0, 255);
-    
+
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-    
+
         if (ofGetFrameNum() % 60) {
     //        sendExpression();
         }
-        
+
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
     }
 }
@@ -136,35 +138,25 @@ void ofApp::drawDebuggingTools() {
 
 void ofApp::draw() {
     ofPushMatrix();
-
-    if (VERTICAL) {
-        ofTranslate(WIDTH / 2, HEIGHT / 2);
-        ofRotate(90);
-        ofTranslate(-(WIDTH / 2), -(HEIGHT / 2));
-    }
-
-    flippedCam.draw(0,0,ofGetWidth(),ofGetHeight());
-
-    ofPushMatrix();
+    //camera stuff
+    float scaleRatio = ofGetHeight()/HEIGHT;
+    ofScale(scaleRatio, scaleRatio);
+    flippedCam.draw(0,0);
+    //tracker stuff
     ofPushStyle();
     ofSetColor(faceColor);
     ofSetLineWidth(faceLineWidth);
-    
-    ofScale(ofGetWidth() / WIDTH, ofGetHeight() / HEIGHT);
     tracker.draw();
     ofPopStyle();
     ofPopMatrix();
 
-
+    //tweet stuff
     for (int i=0; i<tweets.size(); i++) {
         tweets[i].draw();
     }
-
-
     if (debug) {
         drawDebuggingTools();
     }
-    ofPopMatrix();
 }
 
 void ofApp::keyPressed(int key) {

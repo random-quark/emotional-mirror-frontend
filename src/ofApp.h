@@ -13,7 +13,7 @@
 #define CAM_SCALE 20
 #define WIDTH 640.0
 #define HEIGHT 480.0
-#define VERTICAL false
+#define VERTICAL true
 
 class ofApp : public ofBaseApp {
 public:
