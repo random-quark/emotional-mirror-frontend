@@ -5,11 +5,10 @@ using namespace ofxCv;
 using namespace cv;
 
 void ofApp::setup() {
-    ofSetFullscreen(true);
-    debug = false;
+  debug = false;
 
 	cam.initGrabber(WIDTH, HEIGHT);
-
+  scaleRatio = ofGetHeight()/HEIGHT;
 	tracker.setup();
 	tracker.setRescale(.5);
     classifier.load("expressions");
@@ -63,6 +62,9 @@ void ofApp::update() {
         }
 
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
+        faceLocation.x = faceLocation.x * scaleRatio;
+        faceLocation.y = faceLocation.y * scaleRatio;
+        // cout << scaleRatio << endl;
     }
 }
 
@@ -139,7 +141,6 @@ void ofApp::drawDebuggingTools() {
 void ofApp::draw() {
     ofPushMatrix();
     //camera stuff
-    float scaleRatio = ofGetHeight()/HEIGHT;
     ofScale(scaleRatio, scaleRatio);
     flippedCam.draw(0,0);
     //tracker stuff
@@ -150,6 +151,7 @@ void ofApp::draw() {
     ofPopStyle();
     ofPopMatrix();
 
+    //ofCircle(faceLocation.x, faceLocation.y, 30);
     //tweet stuff
     for (int i=0; i<tweets.size(); i++) {
         tweets[i].draw();
@@ -165,7 +167,7 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'c') {
         Tweet tweet;
-        ofPoint location = ofPoint((ofGetWidth() / WIDTH) * faceLocation.x, ((ofGetHeight() / HEIGHT) * faceLocation.y) - 250);
+        ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
         tweet.setup(location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
         tweets.push_back(tweet);
     }

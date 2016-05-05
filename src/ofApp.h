@@ -32,6 +32,7 @@ public:
     vector<Tweet> tweets;
     bool debug;
     bool searchError;
+		float scaleRatio;
 	ExpressionClassifier classifier;
     ofColor faceColor;
     int faceLineWidth;
