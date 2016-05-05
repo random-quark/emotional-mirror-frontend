@@ -82,6 +82,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
         bubblePoints.push_back(ofPoint(x,y));
     }
 
+    movementNoiseSeed = ofRandom(0, 1000);
 }
 
 void Tweet::update() {
@@ -109,13 +110,11 @@ void Tweet::update() {
 
 
     if (now < endTimeX) {
-      cout << "end x: " << endLocationX << endl;
-      cout << "actual x: " << location.x << endl;
-      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::elastic::easeOut);
+      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
     } else {
-      // location.x
+      location.x += ofMap(ofNoise(movementNoiseSeed), 0, 1, -8, 8);
+      movementNoiseSeed += 0.03;
     }
-
 
     noiseSeed+=0.02;
 }
@@ -147,7 +146,7 @@ void Tweet::draw() {
     scale = ofMap(ofNoise(noiseSeed + 1*5.3),0,1,0.8, 1.5);
     ofCurveVertex(bubblePoints[1].x * scale, bubblePoints[1].y * scale);
     ofEndShape();
-    
+
     // STRING STUFF
    if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);

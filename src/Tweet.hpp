@@ -52,6 +52,7 @@ public:
     int initLocationX;
     int endLocationY;
     int endLocationX;
+    float movementNoiseSeed;
 
     //bubble stuff
     float noiseSeed;
