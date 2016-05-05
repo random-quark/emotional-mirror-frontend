@@ -37,11 +37,8 @@ public:
     TweetColors colors;
 
     float initTime;
-    int initLocation;
-    int endLocation;
     string text;
     string author;
-    //ofImage profileImage;
     int moodLevel;
     bool display;
     ofTrueTypeFont font;
@@ -51,6 +48,10 @@ public:
     ofRectangle stringBox;
     int alpha;
     ofImage bird;
+    int initLocationY;
+    int initLocationX;
+    int endLocationY;
+    int endLocationX;
 
     //bubble stuff
     float noiseSeed;
@@ -60,6 +61,7 @@ public:
     vector <ofPoint> bubblePoints;
     vector <float> radii;
     int ellipseWidthRad, ellipseHeightRad;
+    
 
 
 private:
