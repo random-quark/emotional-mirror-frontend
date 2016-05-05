@@ -27,12 +27,12 @@ void ofApp::update() {
         tweets[i].update();
     }
 
-//    for (int i=0; i<tweets.size(); i++) {
-//        if (!tweets[i].display) {
-//            tweets.erase(tweets.begin() + i);
-//            continue;
-//        }
-//    }
+    for (int i=0; i<tweets.size(); i++) {
+        if (!tweets[i].display) {
+            tweets.erase(tweets.begin() + i);
+            continue;
+        }
+    }
 
 	cam.update();
     

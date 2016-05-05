@@ -61,7 +61,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
     initLocationY = location.y;
     initLocationX = location.x;
     endLocationY = 0;
-    endLocationX = ofRandom(0, 1) > 0.5 ? 0 : ofGetWidth();
+    endLocationX = ofRandom(0, 1) > 0.5 ? stringBox.width / 2 : ofGetWidth() - stringBox.width / 2;
     
     bird.load("twitter-bird.png");
 
@@ -85,7 +85,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
 
 void Tweet::update() {
     if (alpha < 255) {
-        alpha+=20;
+        alpha+=5;
         if (alpha > 255) {
             alpha = 255;
         }
@@ -97,12 +97,12 @@ void Tweet::update() {
         display = false;
     }
 
-    auto duration = 6.f;
+    auto duration = 4.f;
     auto endTime = initTime + duration;
     auto now = ofGetElapsedTimef();
-    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::quad::easeIn);
+    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::cubic::easeOut);
     
-    location.x = ofxeasing::map(now, initTime, endTime, initLocationX, endLocationX, &ofxeasing::quad::easeIn);
+    location.x = ofxeasing::map(now, initTime, endTime, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
 
     //bubble stuff
     bubblePoints.clear();
