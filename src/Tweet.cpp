@@ -100,7 +100,7 @@ void Tweet::update() {
     auto duration = 4.f;
     auto endTime = initTime + duration;
     auto now = ofGetElapsedTimef();
-    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::cubic::easeOut);
+    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::sine::easeOut);
     
     location.x = ofxeasing::map(now, initTime, endTime, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
 
