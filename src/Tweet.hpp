@@ -53,6 +53,8 @@ public:
     int endLocationY;
     int endLocationX;
     float movementNoiseSeed;
+    int minX;
+    int maxX;
 
     //bubble stuff
     float noiseSeed;

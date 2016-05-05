@@ -38,10 +38,9 @@ Tweet::Tweet(){
 
 void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
     ofTrueTypeFont::setGlobalDpi(72);
-    font.load("Helvetica.ttf", 24, true, true);//, true);
+    font.load("Helvetica.ttf", 24, true, true);
     location = _location;
-//    location.y -= 100;
-    //profileImage.load(profileImageUrl);
+
     moodLevel = _moodLevel;
     display = true;
     paddingHeight = _paddingHeight;
@@ -61,7 +60,9 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     initLocationY = location.y;
     initLocationX = location.x;
     endLocationY = 0;
-    endLocationX = ofRandom(0, 1) > 0.5 ? stringBox.width / 2 : ofGetWidth() - stringBox.width / 2;
+    minX = (stringBox.width / 2) + BIRD_SIZE + BIRD_PADDING;
+    maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);
+    endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
 
     bird.load("twitter-bird.png");
 
@@ -106,8 +107,6 @@ void Tweet::update() {
     auto now = ofGetElapsedTimef();
 
     location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
-
-
 
     if (now < endTimeX) {
       location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
