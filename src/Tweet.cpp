@@ -69,8 +69,10 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     //cloud stuff
     totalRays = 20;
     stepSize = 100;
-    ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2;
-    ellipseHeightRad = stringBox.height / 2;
+    //ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2;
+    ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / sqrt(2);
+    //ellipseHeightRad = stringBox.height / 2;
+    ellipseHeightRad = stringBox.height / sqrt(2);
     noiseSeed = ofRandom(10000);
 
     angleStep = 360.0 / totalRays;
@@ -128,28 +130,27 @@ void Tweet::draw() {
 
     //BUBBLE SHAPE
     ofBeginShape();
-        ofNoFill();
     // start controlpoint
-    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,0.8, 1.5);
+    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,0.8, 1.2);
     ofCurveVertex(bubblePoints[totalRays-1]);
     // only these points are drawn //////
     for (int i=0; i<totalRays; i++)
     {
-        scale = ofMap(ofNoise(noiseSeed + i*5.3),0,1,0.8, 1.5);
+        scale =  ofMap(ofNoise(noiseSeed + i*5.3),0,1,0.8, 1.2);
         ofCurveVertex(bubblePoints[i].x * scale,bubblePoints[i].y * scale);
         //ofDrawCircle(bubblePoints[i],5);
     }
-    scale = ofMap(ofNoise(noiseSeed + 0*5.3),0,1,0.8, 1.5);
+    scale =  ofMap(ofNoise(noiseSeed + 0*5.3),0,1,0.8, 1.2);
     ofCurveVertex(bubblePoints[0].x * scale,bubblePoints[0].y * scale);
     // end controlpoint
-    scale = ofMap(ofNoise(noiseSeed + 1*5.3),0,1,0.8, 1.5);
+    scale =  ofMap(ofNoise(noiseSeed + 1*5.3),0,1,0.8, 1.2);
     ofCurveVertex(bubblePoints[1].x * scale, bubblePoints[1].y * scale);
     ofEndShape();
 
     // STRING STUFF
    if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);
-       font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), font.getLineHeight() - (stringBox.height / 2));
+       font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font.getLineHeight()) / 2));
    }
     ofPopStyle();
 
