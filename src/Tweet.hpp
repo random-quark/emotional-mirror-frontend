@@ -23,7 +23,7 @@ class Tweet {
 public:
     Tweet();
     void age();
-    void setup( ofPoint _location, string tweetContent, string tweetAuthor, int _moodLevel, int paddingWidth, int _paddingHeight);
+    void setup( ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight);
     void draw();
     void update();
     int getTtl();
@@ -61,7 +61,7 @@ public:
     vector <ofPoint> bubblePoints;
     vector <float> radii;
     int ellipseWidthRad, ellipseHeightRad;
-    
+
 
 
 private:

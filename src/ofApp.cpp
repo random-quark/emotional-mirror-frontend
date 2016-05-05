@@ -57,8 +57,8 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        if (ofGetFrameNum() % 60) {
-    //        sendExpression();
+        if (ofGetFrameNum() % 60 == 0) {
+           sendExpression();
         }
 
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
@@ -74,11 +74,10 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         searchError = false;
 
         Json::Value tweetsJSON = result["tweets"];
-        cout << "size tweet" << tweetsJSON.size() << endl;
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
-            ofPoint location = ofPoint(faceLocation.x, faceLocation.y);
+            ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asInt(), 0, 10);
+            tweet.setup(location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat(), 0, 10);
             tweets.push_back(tweet);
         }
     } else {
@@ -92,10 +91,10 @@ void ofApp::sendExpression() {
     expression = classifier.getDescription(primary);
 
     string url = "";
-    if (expression == "smile") {
-        url = "http://localhost:5000/search?&comp_rel=$gt&comp_value=0.6&randomize_results=True&max_results=1";
-    } else if (expression == "sad") {
-        url = "http://localhost:5000/search?&comp_rel=$lt&comp_value=-0.6&randomize_results=True&max_results=1";
+    if (expression == "sad") {
+        url = "http://localhost:5000/search?&neg_rel=$gt&neg_value=0.4&randomize_results=True&max_results=1";
+    } else if (expression == "happy") {
+        url = "http://localhost:5000/search?&pos_rel=$gt&pos_value=0.4&randomize_results=True&max_results=1";
     }
 
     if (url=="") return;

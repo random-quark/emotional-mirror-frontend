@@ -20,11 +20,11 @@ Tweet::TweetColors Tweet::getTweetColor(int alpha) {
     colors.textColor = ofColor(0);
     colors.birdColor = ofColor(255,255,255);
 
-    if (moodLevel == 3) {
+    if (moodLevel < 0) {
         colors.bgColor.set(255,255,255,alpha);
         colors.textColor.set(0,0,0,alpha);
         colors.birdColor.set(255,0,0,alpha);
-    } else if (moodLevel == 1) {
+    } else if (moodLevel > 0) {
         colors.bgColor.set(255,255,255,alpha);
         colors.birdColor.set(0,255,0,alpha);
     }
@@ -36,7 +36,7 @@ Tweet::Tweet(){
 
 }
 
-void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, int _moodLevel, int paddingWidth, int _paddingHeight) {
+void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
     ofTrueTypeFont::setGlobalDpi(72);
     font.load("Helvetica.ttf", 24, true, true);//, true);
     location = _location;
@@ -62,7 +62,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, in
     initLocationX = location.x;
     endLocationY = 0;
     endLocationX = ofRandom(0, 1) > 0.5 ? stringBox.width / 2 : ofGetWidth() - stringBox.width / 2;
-    
+
     bird.load("twitter-bird.png");
 
     //cloud stuff
@@ -97,33 +97,42 @@ void Tweet::update() {
         display = false;
     }
 
-    auto duration = 4.f;
-    auto endTime = initTime + duration;
+    auto durationY = 10.f;
+    auto durationX = 3.f;
+    auto endTimeY = initTime + durationY;
+    auto endTimeX = initTime + durationX;
     auto now = ofGetElapsedTimef();
-    location.y = ofxeasing::map(now, initTime, endTime, initLocationY, endLocationY, &ofxeasing::sine::easeOut);
-    
-    location.x = ofxeasing::map(now, initTime, endTime, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
+
+    location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
+
+    if (now < endTimeX) {
+      cout << "end x: " << endLocationX << endl;
+      cout << "actual x: " << location.x << endl;
+      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
+    }
+
 
     //bubble stuff
     bubblePoints.clear();
+    //cout << noiseSeed << endl;
     for (int i=0; i<totalRays; i++) {
-        float noisedRadius = radii[i] + ofNoise(noiseSeed + i*5.3) * stepSize;
+        float noisedRadius = radii[i] ;//+ ofNoise(noiseSeed + i*5.4) * stepSize;
         float endX = sin(ofDegToRad(i*angleStep)) * noisedRadius;
         float endY = cos(ofDegToRad(i*angleStep)) * noisedRadius;
 
         bubblePoints.push_back(ofPoint(endX, endY));
     }
-    noiseSeed+=0.01;
+    noiseSeed+=0.03;
 }
 
 void Tweet::draw() {
-    
+
     if (bubblePoints.size()>0) {
      ofPushMatrix();
 
     ofPushStyle();
     ofTranslate(location);
-        
+
     ofSetColor(colors.bgColor);
 
     ofBeginShape();
