@@ -167,7 +167,7 @@ void ofApp::keyPressed(int key) {
     }
     if (key == 'c') {
         Tweet tweet;
-        ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
+        ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
         tweet.setup(location, "My dog has died. I am very sad and upset. My dog has died. I am very sad and upset.  My dog has died. I am very sad and upset. ", "tom_d_chambers", 3, 0, 30);
         tweets.push_back(tweet);
     }
