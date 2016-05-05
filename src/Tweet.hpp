@@ -39,7 +39,7 @@ public:
     float initTime;
     string text;
     string author;
-    int moodLevel;
+    float moodLevel;
     bool display;
     ofTrueTypeFont font;
     int paddingHeight;
@@ -63,7 +63,7 @@ public:
     float stepSize;
     vector <ofPoint> bubblePoints;
     int ellipseWidthRad, ellipseHeightRad;
-    
+
 
 
 private:
