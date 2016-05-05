@@ -105,10 +105,14 @@ void Tweet::update() {
 
     location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
 
+
+
     if (now < endTimeX) {
       cout << "end x: " << endLocationX << endl;
       cout << "actual x: " << location.x << endl;
-      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
+      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::elastic::easeOut);
+    } else {
+      // location.x
     }
 
 
