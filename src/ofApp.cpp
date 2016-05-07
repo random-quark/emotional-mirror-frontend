@@ -19,6 +19,8 @@ void ofApp::setup() {
 
     faceColor = ofColor(0,0,0);
     faceLineWidth = 3;
+    
+    ofHideCursor();
 }
 
 void ofApp::update() {
