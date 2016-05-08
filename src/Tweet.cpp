@@ -13,6 +13,7 @@
 
 #define BIRD_SIZE 50
 #define BIRD_PADDING 20
+#define MIN_RADIUS 70
 
 Tweet::TweetColors Tweet::getTweetColor(int alpha) {
     Tweet::TweetColors colors;
@@ -74,6 +75,9 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / sqrt(2);
     //ellipseHeightRad = stringBox.height / 2;
     ellipseHeightRad = stringBox.height / sqrt(2);
+    if (ellipseHeightRad < MIN_RADIUS) {
+      ellipseHeightRad = MIN_RADIUS;
+    }
     noiseSeed = ofRandom(10000);
 
     angleStep = 360.0 / totalRays;
@@ -158,7 +162,7 @@ void Tweet::draw() {
    ofPushStyle();
    ofSetColor(colors.birdColor);
    ofFill();
-   bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + BIRD_SIZE / 2) , 50, 40.65);
+   bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2) , 50, 40.65);
     ofPopStyle();
     ofPopMatrix();
   }
