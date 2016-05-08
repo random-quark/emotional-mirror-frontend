@@ -122,7 +122,7 @@ void Tweet::update() {
       movementNoiseSeed += 0.03;
     }
 
-    noiseSeed+=0.02;
+    noiseSeed+=0.01;
 }
 
 void Tweet::draw() {
@@ -132,22 +132,24 @@ void Tweet::draw() {
     ofTranslate(location);
     ofSetColor(colors.bgColor);
 
+    float lowerLimit = 1;
+    float higherLimit = 1; //waqs 1.3
     //BUBBLE SHAPE
     ofBeginShape();
     // start controlpoint
-    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,0.8, 1.2);
+    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,lowerLimit, higherLimit);
     ofCurveVertex(bubblePoints[totalRays-1]);
     // only these points are drawn //////
     for (int i=0; i<totalRays; i++)
     {
-        scale =  ofMap(ofNoise(noiseSeed + i*5.3),0,1,0.8, 1.2);
+        scale =  ofMap(ofNoise(noiseSeed + i*5.3),0,1,lowerLimit, higherLimit);
         ofCurveVertex(bubblePoints[i].x * scale,bubblePoints[i].y * scale);
         //ofDrawCircle(bubblePoints[i],5);
     }
-    scale =  ofMap(ofNoise(noiseSeed + 0*5.3),0,1,0.8, 1.2);
+    scale =  ofMap(ofNoise(noiseSeed + 0*5.3),0,1,lowerLimit, higherLimit);
     ofCurveVertex(bubblePoints[0].x * scale,bubblePoints[0].y * scale);
     // end controlpoint
-    scale =  ofMap(ofNoise(noiseSeed + 1*5.3),0,1,0.8, 1.2);
+    scale =  ofMap(ofNoise(noiseSeed + 1*5.3),0,1,lowerLimit, higherLimit);
     ofCurveVertex(bubblePoints[1].x * scale, bubblePoints[1].y * scale);
     ofEndShape();
 
