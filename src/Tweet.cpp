@@ -67,7 +67,12 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     originEllipsePoints = polyline.getVertices();
     
     for (int i = 0; i<originEllipsePoints.size(); i++){
-        if (i>0 && ofDist(originEllipsePoints[i].x, originEllipsePoints[i].y, originEllipsePoints[i-1].x, originEllipsePoints[i-1].y)>10) //needed to avoid overlapping points
+        if (i==originEllipsePoints.size()-1 && ofDist(originEllipsePoints[0].x, originEllipsePoints[0].y, originEllipsePoints[originEllipsePoints.size()-1].x, originEllipsePoints[originEllipsePoints.size()-1].y)<20)
+        {
+            // if the last point in resampling is too close to the first then
+            // do nothing (ie. don't add it to the list of bubble points to draw)
+        }
+        else
         {
             noiseSeeds.push_back(ofRandom(10000));
             normVectors.push_back(originEllipsePoints[i].getNormalized());
