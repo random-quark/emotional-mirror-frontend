@@ -43,7 +43,7 @@ void ofApp::update() {
         flippedCam = cam.getPixels();
         flippedCam.mirror(false, true);
 
-        if (VERTICAL) flippedCam.rotate90(1);
+        if (VERTICAL) flippedCam.rotate90(3);
 
         if(tracker.update(toCv(flippedCam))) {
             classifier.classify(tracker);
