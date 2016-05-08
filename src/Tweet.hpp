@@ -57,14 +57,14 @@ public:
     int maxX;
 
     //bubble stuff
-    float noiseSeed;
-    int totalRays;
-    float angleStep;
-    float stepSize;
-    vector <ofPoint> bubblePoints;
+    vector <float> noiseSeeds;
+    vector <ofPoint> ellipsePoints, originEllipsePoints, normVectors;
+    int cornerRadius;
+    int resamplingRate;
+    int noiseStep;
     int ellipseWidthRad, ellipseHeightRad;
-
-
+    ofPath path;
+    ofPoint newVec;
 
 private:
     int ttl;

@@ -10,28 +10,12 @@
 #include "ofApp.h"
 #include "Util.hpp"
 #include "ofxEasing.h"
+#include <algorithm>
 
 #define BIRD_SIZE 50
 #define BIRD_PADDING 20
 #define MIN_RADIUS 70
 
-Tweet::TweetColors Tweet::getTweetColor(int alpha) {
-    Tweet::TweetColors colors;
-    colors.bgColor = ofColor(255,255,255,0);
-    colors.textColor = ofColor(0,0,0,alpha);
-    colors.birdColor = ofColor(255,255,255);
-
-    if (moodLevel < 0) {
-        colors.bgColor.set(255,255,255,alpha);
-        colors.textColor.set(0,0,0,alpha);
-        colors.birdColor.set(255,0,0,alpha);
-    } else if (moodLevel > 0) {
-        colors.bgColor.set(255,255,255,alpha);
-        colors.birdColor.set(0,255,0,alpha);
-    }
-
-    return colors;
-}
 
 Tweet::Tweet(){
 
@@ -65,32 +49,32 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     minX = (stringBox.width / 2) + BIRD_SIZE + BIRD_PADDING;
     maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
+    movementNoiseSeed = ofRandom(0, 1000);
 
     bird.load("twitter-bird.png");
 
     //cloud stuff
-    totalRays = 20;
-    stepSize = 100;
-    //ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2;
+    cornerRadius = 60;
+    noiseStep = 40;
+    resamplingRate = 40;
+    
     ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / sqrt(2);
-    //ellipseHeightRad = stringBox.height / 2;
     ellipseHeightRad = stringBox.height / sqrt(2);
-    if (ellipseHeightRad < MIN_RADIUS) {
-      ellipseHeightRad = MIN_RADIUS;
+    ellipseHeightRad = max(ellipseHeightRad, MIN_RADIUS);
+    path.rectRounded(-ellipseWidthRad/2, -ellipseHeightRad/2, ellipseWidthRad, ellipseHeightRad, cornerRadius);
+    ofPolyline polyline = path.getOutline()[0];
+    polyline = polyline.getResampledBySpacing(resamplingRate);
+    originEllipsePoints = polyline.getVertices();
+    
+    for (int i = 0; i<originEllipsePoints.size(); i++){
+        if (i>0 && ofDist(originEllipsePoints[i].x, originEllipsePoints[i].y, originEllipsePoints[i-1].x, originEllipsePoints[i-1].y)>10) //needed to avoid overlapping points
+        {
+            noiseSeeds.push_back(ofRandom(10000));
+            normVectors.push_back(originEllipsePoints[i].getNormalized());
+            newVec = originEllipsePoints[i] + normVectors[i] * ofNoise(noiseSeeds[i]) * noiseStep;
+            ellipsePoints.push_back(newVec);
+        }
     }
-    noiseSeed = ofRandom(10000);
-
-    angleStep = 360.0 / totalRays;
-    ofSetCircleResolution(60);
-
-    for (int i=0; i<totalRays; i++)
-    {
-        float x = 0 + ellipseWidthRad * cos(ofDegToRad(angleStep*i));
-        float y = 0 + ellipseHeightRad * sin(ofDegToRad(angleStep*i));
-        bubblePoints.push_back(ofPoint(x,y));
-    }
-
-    movementNoiseSeed = ofRandom(0, 1000);
 }
 
 void Tweet::update() {
@@ -122,11 +106,17 @@ void Tweet::update() {
       movementNoiseSeed += 0.03;
     }
 
-    noiseSeed+=0.01;
+    // adding noise to the bubble
+    for (int i = 0; i<ellipsePoints.size(); i++){
+        noiseSeeds[i]+=0.02;
+        newVec = originEllipsePoints[i] + normVectors[i] * ofNoise(noiseSeeds[i]) * noiseStep;
+        ellipsePoints[i] = newVec;
+    }
+
 }
 
 void Tweet::draw() {
-    if (bubblePoints.size()>0) {
+    if (ellipsePoints.size()>0) {
     ofPushMatrix();
     ofPushStyle();
     ofTranslate(location);
@@ -134,27 +124,22 @@ void Tweet::draw() {
 
     float lowerLimit = 1;
     float higherLimit = 1; //waqs 1.3
+
     //BUBBLE SHAPE
     ofBeginShape();
     // start controlpoint
-    float scale = ofMap(ofNoise(noiseSeed + (totalRays-1)*5.3),0,1,lowerLimit, higherLimit);
-    ofCurveVertex(bubblePoints[totalRays-1]);
-    // only these points are drawn //////
-    for (int i=0; i<totalRays; i++)
-    {
-        scale =  ofMap(ofNoise(noiseSeed + i*5.3),0,1,lowerLimit, higherLimit);
-        ofCurveVertex(bubblePoints[i].x * scale,bubblePoints[i].y * scale);
-        //ofDrawCircle(bubblePoints[i],5);
+    ofCurveVertex(ellipsePoints[ellipsePoints.size()-1]);
+    // only these points are drawn
+    for (int i=0; i<ellipsePoints.size(); i++){
+        ofCurveVertex(ellipsePoints[i]);
     }
-    scale =  ofMap(ofNoise(noiseSeed + 0*5.3),0,1,lowerLimit, higherLimit);
-    ofCurveVertex(bubblePoints[0].x * scale,bubblePoints[0].y * scale);
+    ofCurveVertex(ellipsePoints[0]);
     // end controlpoint
-    scale =  ofMap(ofNoise(noiseSeed + 1*5.3),0,1,lowerLimit, higherLimit);
-    ofCurveVertex(bubblePoints[1].x * scale, bubblePoints[1].y * scale);
+    ofCurveVertex(ellipsePoints[1]);
     ofEndShape();
 
     // STRING STUFF
-   if (!wrappedString.empty()) {
+    if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);
        font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font.getLineHeight()) / 2));
    }
@@ -168,4 +153,22 @@ void Tweet::draw() {
     ofPopStyle();
     ofPopMatrix();
   }
+}
+
+Tweet::TweetColors Tweet::getTweetColor(int alpha) {
+    Tweet::TweetColors colors;
+    colors.bgColor = ofColor(255,255,255,0);
+    colors.textColor = ofColor(0,0,0,alpha);
+    colors.birdColor = ofColor(255,255,255);
+    
+    if (moodLevel < 0) {
+        colors.bgColor.set(255,255,255,alpha);
+        colors.textColor.set(0,0,0,alpha);
+        colors.birdColor.set(255,0,0,alpha);
+    } else if (moodLevel > 0) {
+        colors.bgColor.set(255,255,255,alpha);
+        colors.birdColor.set(0,255,0,alpha);
+    }
+    
+    return colors;
 }
