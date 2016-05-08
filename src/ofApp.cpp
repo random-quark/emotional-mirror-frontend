@@ -19,7 +19,7 @@ void ofApp::setup() {
 
     faceColor = ofColor(0,0,0);
     faceLineWidth = 3;
-    
+
     ofHideCursor();
 }
 
@@ -52,7 +52,7 @@ void ofApp::update() {
         float happy = classifier.getProbability(0);
         float sad = classifier.getProbability(1);
 
-        
+
         faceColor.g = ofMap(happy, 0, 1, 0, 255);
         faceColor.r = ofMap(sad, 0, 1, 0, 255);
 

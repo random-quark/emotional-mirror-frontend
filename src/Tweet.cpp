@@ -16,8 +16,8 @@
 
 Tweet::TweetColors Tweet::getTweetColor(int alpha) {
     Tweet::TweetColors colors;
-    colors.bgColor = ofColor(255,255,255,alpha);
-    colors.textColor = ofColor(0);
+    colors.bgColor = ofColor(255,255,255,0);
+    colors.textColor = ofColor(0,0,0,alpha);
     colors.birdColor = ofColor(255,255,255);
 
     if (moodLevel < 0) {
@@ -54,6 +54,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     int height = stringBox.height + paddingHeight;
 
     alpha = 0;
+    colors = getTweetColor(alpha);
 
     //easing
     initTime = ofGetElapsedTimef();
@@ -89,14 +90,14 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
 }
 
 void Tweet::update() {
+    colors = getTweetColor(alpha);
+
     if (alpha < 255) {
         alpha+=5;
         if (alpha > 255) {
             alpha = 255;
         }
     }
-
-    colors = getTweetColor(alpha);
 
     if (location.y < 0) {
         display = false;
@@ -121,7 +122,6 @@ void Tweet::update() {
 }
 
 void Tweet::draw() {
-
     if (bubblePoints.size()>0) {
     ofPushMatrix();
     ofPushStyle();
