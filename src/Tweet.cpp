@@ -103,7 +103,7 @@ void Tweet::update() {
         }
     }
 
-    if (location.y < 0) {
+    if ((location.y + ellipseHeightRad * 2) < 0) {
         display = false;
     }
 
