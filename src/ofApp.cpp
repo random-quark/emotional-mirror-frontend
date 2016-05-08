@@ -60,8 +60,8 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        if (ofGetFrameNum() % 60 == 0) {
-           sendExpression();
+        if (ofRandom(0, 1000) < 300 && primaryExpressionProbability > 0.6) {
+           // sendExpression();
         }
 
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
