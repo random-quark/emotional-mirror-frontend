@@ -28,12 +28,13 @@ public:
     void update();
     int getTtl();
     struct TweetColors {
-        ofColor bgColor;
+        ofColor bubbleColor;
+        ofColor shadowColor;
         ofColor textColor;
         ofColor birdColor;
     };
 
-    TweetColors getTweetColor(int alpha);
+    TweetColors getTweetColor();
     TweetColors colors;
 
     float initTime;
@@ -65,6 +66,7 @@ public:
     int ellipseWidthRad, ellipseHeightRad;
     ofPath path;
     ofPoint newVec;
+    void drawBubble();
 
 private:
     int ttl;

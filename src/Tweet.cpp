@@ -39,7 +39,7 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     int height = stringBox.height + paddingHeight;
 
     alpha = 0;
-    colors = getTweetColor(alpha);
+    colors = getTweetColor();
 
     //easing
     initTime = ofGetElapsedTimef();
@@ -83,15 +83,8 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
 }
 
 void Tweet::update() {
-    colors = getTweetColor(alpha);
-
-    if (alpha < 255) {
-        alpha+=5;
-        if (alpha > 255) {
-            alpha = 255;
-        }
-    }
-
+    colors = getTweetColor();
+    
     if ((location.y + ellipseHeightRad * 2) < 0) {
         display = false;
     }
@@ -125,24 +118,14 @@ void Tweet::draw() {
     ofPushMatrix();
     ofPushStyle();
     ofTranslate(location);
-    ofSetColor(colors.bgColor);
-
-    float lowerLimit = 1;
-    float higherLimit = 1; //waqs 1.3
-
-    //BUBBLE SHAPE
-    ofBeginShape();
-    // start controlpoint
-    ofCurveVertex(ellipsePoints[ellipsePoints.size()-1]);
-    // only these points are drawn
-    for (int i=0; i<ellipsePoints.size(); i++){
-        ofCurveVertex(ellipsePoints[i]);
-    }
-    ofCurveVertex(ellipsePoints[0]);
-    // end controlpoint
-    ofCurveVertex(ellipsePoints[1]);
-    ofEndShape();
-
+    
+    // BUBBLE STUFF
+    ofSetColor(colors.shadowColor);
+    drawBubble();
+    ofSetColor(colors.bubbleColor);
+    ofTranslate(-7,-7);
+    drawBubble();
+        
     // STRING STUFF
     if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);
@@ -160,20 +143,40 @@ void Tweet::draw() {
   }
 }
 
-Tweet::TweetColors Tweet::getTweetColor(int alpha) {
+void Tweet::drawBubble(){
+    ofBeginShape();
+    // start controlpoint
+    ofCurveVertex(ellipsePoints[ellipsePoints.size()-1]);
+    // only these points are drawn
+    for (int i=0; i<ellipsePoints.size(); i++){
+        ofCurveVertex(ellipsePoints[i]);
+    }
+    ofCurveVertex(ellipsePoints[0]);
+    // end controlpoint
+    ofCurveVertex(ellipsePoints[1]);
+    ofEndShape();
+}
+
+Tweet::TweetColors Tweet::getTweetColor() {
     Tweet::TweetColors colors;
-    colors.bgColor = ofColor(255,255,255,0);
+    colors.bubbleColor = ofColor(255,255,255,0);
     colors.textColor = ofColor(0,0,0,alpha);
     colors.birdColor = ofColor(255,255,255);
+    colors.shadowColor = ofColor(50, alpha*0.75);
     
     if (moodLevel < 0) {
-        colors.bgColor.set(255,255,255,alpha);
+        colors.bubbleColor.set(255,255,255,alpha);
         colors.textColor.set(0,0,0,alpha);
         colors.birdColor.set(255,0,0,alpha);
+        colors.shadowColor.set(50, alpha*0.75);
     } else if (moodLevel > 0) {
-        colors.bgColor.set(255,255,255,alpha);
+        colors.bubbleColor.set(255,255,255,alpha);
         colors.birdColor.set(0,255,0,alpha);
+        colors.shadowColor.set(50, alpha*0.75);
     }
-    
+
+    alpha+=5;
+    alpha=ofClamp(alpha,0,255);
+
     return colors;
 }
