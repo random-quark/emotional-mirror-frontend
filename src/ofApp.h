@@ -5,6 +5,7 @@
 #include "ofxCvHaarFinder.h"
 #include "ofxJSON.h"
 #include "Tweet.hpp"
+#include "Timer.hpp"
 
 #define RECEIVER_PORT 12345
 #define SENDER_PORT 12346
@@ -37,4 +38,7 @@ public:
     ofColor faceColor;
     int faceLineWidth;
     string expression;
+    Timer expressionTimer;
+    
+    int previousPrimaryExpression;
 };

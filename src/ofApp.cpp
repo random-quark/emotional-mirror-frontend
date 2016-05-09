@@ -3,12 +3,14 @@
 
 using namespace ofxCv;
 using namespace cv;
+#define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
+#define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
 
 void ofApp::setup() {
-  debug = false;
+    debug = false;
 
 	cam.initGrabber(WIDTH, HEIGHT);
-  scaleRatio = ofGetHeight()/HEIGHT;
+    scaleRatio = ofGetHeight()/HEIGHT;
 	tracker.setup();
 	tracker.setRescale(.5);
     classifier.load("expressions");
@@ -21,6 +23,9 @@ void ofApp::setup() {
     faceLineWidth = 3;
 
     ofHideCursor();
+    
+    expressionTimer.set(0);
+    expressionTimer.start();
 }
 
 void ofApp::update() {
@@ -60,14 +65,18 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        if (ofRandom(0, 1000) < 10 && primaryExpressionProbability > 0.6) {
-           sendExpression();
-        }
+//        if (ofRandom(0, 1000) < 10 && primaryExpressionProbability > 0.6) {
+//           sendExpression();
+//        }
 
+        if (expressionTimer.finished()) && primaryExpressionProbability > 0.6) {
+            sendExpression();
+            expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS);
+        }
+        
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
         faceLocation.x = faceLocation.x * scaleRatio;
         faceLocation.y = faceLocation.y * scaleRatio;
-        // cout << scaleRatio << endl;
     }
 }
 
