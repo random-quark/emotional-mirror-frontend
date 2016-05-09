@@ -41,4 +41,5 @@ public:
     Timer expressionTimer;
     
     int previousPrimaryExpression;
+    float expressionThreshold;
 };
