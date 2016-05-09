@@ -5,7 +5,7 @@ using namespace ofxCv;
 using namespace cv;
 #define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
 #define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
-#define LOWER_EXPRESSION_THRESHOLD 0.3
+#define LOWER_EXPRESSION_THRESHOLD 0.4
 #define UPPER_EXPRESSION_THRESHOLD 0.6
 
 void ofApp::setup() {
@@ -69,18 +69,17 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
         
-
-//        if (ofRandom(0, 1000) < 10 && primaryExpressionProbability > 0.6) {
-//           sendExpression();
-//        }
-
+        primaryExpressionProbability = 0.7;
         if (expressionTimer.finished()){
-            if (primaryExpressionProbability > expressionThreshold) {
+            if (primaryExpressionProbability >= expressionThreshold) {
                 sendExpression();
                 expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
             }
-            //else if (
+            else if (primaryExpressionProbability < expressionThreshold) {
+                expressionTimer.reset(0);
+                expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
+            }
         }
         
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
@@ -146,13 +145,16 @@ void ofApp::drawDebuggingTools() {
     ofDrawBitmapString("Tweet count: " + to_string(tweets.size()), 5, 9);
     ofTranslate(0, h + 5);
     ofDrawBitmapString("Framerate: " + to_string(ofGetFrameRate()), 5, 9);
+    ofTranslate(0, h + 5);
+    ofDrawBitmapString("Expression threshold:  " + to_string(expressionThreshold), 5, 9);
+    ofTranslate(0, h + 5);
+    if (searchError) {
+        ofDrawBitmapString("Could not connect to server (at frame: " + to_string(ofGetFrameNum()) + ")", 5, 9);
+    }
     ofPopMatrix();
     ofPopStyle();
 
-    if (searchError) {
-        ofDrawRectangle(0, 0, WIDTH, 20);
-        ofDrawBitmapString("Could not connect to server", 200, 10);
-    }
+
 
     ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
 }
