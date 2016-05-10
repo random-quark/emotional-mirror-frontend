@@ -43,6 +43,7 @@ public:
     string author;
     float moodLevel;
     bool display;
+    bool dead;
     ofxTrueTypeFontUC* font;
     int paddingHeight;
     ofPoint location;

@@ -41,7 +41,7 @@ void ofApp::update() {
     }
 
     for (int i=0; i<tweets.size(); i++) {
-        if (!tweets[i].display) {
+        if (tweets[i].dead) {
             tweets.erase(tweets.begin() + i);
             continue;
         }
@@ -72,12 +72,17 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
         
-        primaryExpressionProbability = 0.7;
         if (expressionTimer.finished()){
             if (primaryExpressionProbability >= expressionThreshold) {
-//                sendExpression();
+                if (primaryExpression != previousPrimaryExpression) {
+                    for (int i; i < tweets.size(); i++) {
+                        tweets[i].display = false;
+                    }
+                }
+//              sendExpression();
                 expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
+                int previousPrimaryExpression = primaryExpression;
             }
             else if (primaryExpressionProbability < expressionThreshold) {
                 expressionTimer.reset(0);

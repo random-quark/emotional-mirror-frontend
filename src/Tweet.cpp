@@ -26,6 +26,7 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
 
     moodLevel = _moodLevel;
     display = true;
+    dead = false;
     paddingHeight = _paddingHeight;
 
     text = "@" + tweetAuthor + " " + tweetContent;
@@ -84,6 +85,11 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
 }
 
 void Tweet::update() {
+    if (alpha == 0 && display == false) {
+        cout << "killing tweet" << endl;
+        dead = true;
+    }
+    
     colors = getTweetColor();
     
     if ((location.y + ellipseHeightRad * 2) < 0) {
@@ -176,8 +182,13 @@ Tweet::TweetColors Tweet::getTweetColor() {
         colors.shadowColor.set(50, alpha*0.75);
     }
 
-    alpha+=5;
+    if (display==false) {
+        alpha-=5;
+    } else {
+        alpha+=5;
+    }
     alpha=ofClamp(alpha,0,255);
+
 
     return colors;
 }
