@@ -20,7 +20,7 @@ using namespace std;
 class Util {
 public:
     Util();
-    static string wrapString(string text, int width, ofTrueTypeFont font);
+    static string wrapString(string text, int width, ofxTrueTypeFontUC* font);
 };
 
 

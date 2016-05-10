@@ -24,7 +24,7 @@ class Tweet {
 public:
     Tweet();
     void age();
-    void setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight);
+    void setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight);
     void draw();
     void update();
     int getTtl();
@@ -43,7 +43,7 @@ public:
     string author;
     float moodLevel;
     bool display;
-    ofTrueTypeFont font;
+    ofxTrueTypeFontUC* font;
     int paddingHeight;
     ofPoint location;
     string wrappedString;

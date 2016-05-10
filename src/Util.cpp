@@ -12,7 +12,7 @@ Util::Util() {
     
 }
 
-string Util::wrapString(string text, int maxLineWidth, ofTrueTypeFont font) {
+string Util::wrapString(string text, int maxLineWidth, ofxTrueTypeFontUC* font) {
     int timesCalled=0;
     string output = "";
     string currentLine = "";
@@ -23,7 +23,7 @@ string Util::wrapString(string text, int maxLineWidth, ofTrueTypeFont font) {
         string currentWord = words[i];
         
         currentLine += currentWord + " ";
-        int currentLineWidth = font.stringWidth(currentLine);
+        int currentLineWidth = font->stringWidth(currentLine);
         if(currentLineWidth >= maxLineWidth) {
             currentLine = currentWord;
             output += "\n";

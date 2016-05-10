@@ -43,6 +43,7 @@ public:
     
     int previousPrimaryExpression;
     float expressionThreshold;
-    
-    ofxTrueTypeFontUC fontuc;
+
+private:
+    ofxTrueTypeFontUC* font_original;
 };

@@ -21,7 +21,7 @@ Tweet::Tweet(){
 
 }
 
-void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
+void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
     location = _location;
 
     moodLevel = _moodLevel;
@@ -30,10 +30,9 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
 
     text = "@" + tweetAuthor + " " + tweetContent;
     
-    font.load("OpenSansEmoji.ttf", 24, true, true);
-
+    font = _font;
     wrappedString = Util::wrapString(text, 350, font);
-    stringBox = font.getStringBoundingBox(wrappedString,0,0);
+    stringBox = font->getStringBoundingBox(wrappedString,0,0);
 
     int width = stringBox.width + paddingWidth;
     int height = stringBox.height + paddingHeight;
@@ -129,7 +128,7 @@ void Tweet::draw() {
     // STRING STUFF
     if (!wrappedString.empty()) {
        ofSetColor(colors.textColor);
-       font.drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font.getLineHeight()) / 2));
+       font->drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
    }
     ofPopStyle();
 

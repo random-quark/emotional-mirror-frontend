@@ -30,6 +30,9 @@ void ofApp::setup() {
     expressionTimer.start();
     
     expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
+    
+    font_original = new ofxTrueTypeFontUC();
+    font_original->load("OpenSansEmoji.ttf", 24, true, true);
 }
 
 void ofApp::update() {
@@ -72,7 +75,7 @@ void ofApp::update() {
         primaryExpressionProbability = 0.7;
         if (expressionTimer.finished()){
             if (primaryExpressionProbability >= expressionThreshold) {
-                sendExpression();
+//                sendExpression();
                 expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
             }
@@ -97,7 +100,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat(), 0, 10);
+            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat(), 0, 10);
             tweets.push_back(tweet);
         }
     } else {
@@ -190,7 +193,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(location, "My dog 😂😂 😂 has died.", "aguy", 3, 0, 30);
+        tweet.setup(font_original, location, "My dog 😂😂 😂 has died.", "aguy", 3, 0, 30);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
