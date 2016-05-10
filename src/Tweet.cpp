@@ -22,8 +22,6 @@ Tweet::Tweet(){
 }
 
 void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
-    ofTrueTypeFont::setGlobalDpi(72);
-    font.load("Helvetica.ttf", 24, true, true);
     location = _location;
 
     moodLevel = _moodLevel;
@@ -31,6 +29,8 @@ void Tweet::setup(ofPoint _location, string tweetContent, string tweetAuthor, fl
     paddingHeight = _paddingHeight;
 
     text = "@" + tweetAuthor + " " + tweetContent;
+    
+    font.load("OpenSansEmoji.ttf", 24, true, true);
 
     wrappedString = Util::wrapString(text, 350, font);
     stringBox = font.getStringBoundingBox(wrappedString,0,0);

@@ -4,3 +4,4 @@ ofxFaceTracker
 ofxGui
 ofxJSON
 ofxOpenCv
+ofxTrueTypeFontUC

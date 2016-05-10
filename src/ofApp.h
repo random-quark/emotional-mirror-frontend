@@ -6,6 +6,7 @@
 #include "ofxJSON.h"
 #include "Tweet.hpp"
 #include "Timer.hpp"
+#include "ofxTrueTypeFontUC.h"
 
 #define RECEIVER_PORT 12345
 #define SENDER_PORT 12346
@@ -42,4 +43,6 @@ public:
     
     int previousPrimaryExpression;
     float expressionThreshold;
+    
+    ofxTrueTypeFontUC fontuc;
 };

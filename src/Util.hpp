@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <ofxTrueTypeFontUC.h>
 #include <ofTrueTypeFont.h>
 #include <vector>
 

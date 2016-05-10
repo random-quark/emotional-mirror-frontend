@@ -16,6 +16,7 @@ using namespace std;
 #include <ofImage.h>
 #include <ofGraphics.h>
 #include <ofTrueTypeFont.h>
+#include "ofxTrueTypeFontUC.h"
 
 #define HEIGHT 900
 
@@ -23,7 +24,7 @@ class Tweet {
 public:
     Tweet();
     void age();
-    void setup( ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight);
+    void setup(ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight);
     void draw();
     void update();
     int getTtl();

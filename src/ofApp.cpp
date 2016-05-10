@@ -190,7 +190,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(location, "My dog has died.", "aguy", 3, 0, 30);
+        tweet.setup(location, "My dog 😂😂 😂 has died.", "aguy", 3, 0, 30);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
