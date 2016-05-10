@@ -15,7 +15,7 @@
 #define BIRD_SIZE 50
 #define BIRD_PADDING 20
 #define MIN_RADIUS 70
-
+#define BUBBLE_PADDING 10
 
 Tweet::Tweet(){
 
@@ -57,10 +57,12 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     noiseStep = 40;
     resamplingRate = 40;
     
-    ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING) / sqrt(2);
-    ellipseHeightRad = stringBox.height / sqrt(2);
+    ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING);
+    ellipseHeightRad = stringBox.height;
+    
     ellipseHeightRad = max(ellipseHeightRad, MIN_RADIUS);
-    path.rectRounded(-ellipseWidthRad/2, -ellipseHeightRad/2, ellipseWidthRad, ellipseHeightRad, cornerRadius);
+    path.rectRounded(-ellipseWidthRad/2, (-ellipseHeightRad/2)-BUBBLE_PADDING, ellipseWidthRad, ellipseHeightRad, cornerRadius);
+    
     ofPolyline polyline = path.getOutline()[0];
     polyline = polyline.getResampledBySpacing(resamplingRate);
     originEllipsePoints = polyline.getVertices();
