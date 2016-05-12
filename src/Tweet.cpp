@@ -1,4 +1,3 @@
-//
 //  Tweet.cpp
 //  emotion-mirror-4
 //
@@ -12,66 +11,62 @@
 #include "ofxEasing.h"
 #include <algorithm>
 
-#define BIRD_SIZE 50
+#define BIRD_SIZE 35
 #define BIRD_PADDING 20
-#define MIN_RADIUS 70
-#define BUBBLE_PADDING 10
+#define MIN_WIDTH 70
 #define MAX_FBO_WIDTH 600
 #define MAX_FBO_HEIGHT 400
-#define SHADOW_OFFSET -15
+#define FBO_SAFETY_MARGIN 150
+#define SHADOW_OFFSET 15
+#define BUBBLE_TOP_LEFT_SHIFT 15  // bigger values push the text down to center it properly
 
 Tweet::Tweet(){
-    
 }
 
-void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
+void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel) {
     location = _location;
-    
+
     moodLevel = _moodLevel;
-    display = true;
+    fade = true;
     dead = false;
-    paddingHeight = _paddingHeight;
-    
+
     author = "@" + tweetAuthor;
     text = author + " " + tweetContent;
-    
+
     font = _font;
     wrappedString = Util::wrapString(text, 350, font);
     stringBox = font->getStringBoundingBox(wrappedString,0,0);
-    
-    int width = stringBox.width + paddingWidth;
-    int height = stringBox.height + paddingHeight;
-    
+
     alpha = 0;
     colors = getTweetColor();
-    
+
     //easing
     initTime = ofGetElapsedTimef();
     initLocationY = location.y;
     initLocationX = location.x;
     endLocationY = 0;
-    minX = (stringBox.width / 2) + BIRD_SIZE + BIRD_PADDING;
-    maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);
+    minX = (stringBox.width + BIRD_SIZE + BIRD_PADDING)/2;                      // MIN location of tweet on x-axis
+    maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);   // MAX location of tweet on x-axis
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
-    
-    bird.load("twitter-bird.png");
-    
+
+    bird.load("twitter-bird-50px.png");
+
     //cloud stuff
     cornerRadius = 60;
     noiseStep = 40;
     resamplingRate = 40;
-    
-    ellipseWidthRad = (stringBox.width + BIRD_SIZE + BIRD_PADDING);
-    ellipseHeightRad = stringBox.height;
-    
-    ellipseHeightRad = max(ellipseHeightRad, MIN_RADIUS);
-    path.rectRounded(-ellipseWidthRad/2, (-ellipseHeightRad/2)-BUBBLE_PADDING, ellipseWidthRad, ellipseHeightRad, cornerRadius);
-    
+
+    bubbleWidth = (stringBox.width + BIRD_SIZE + BIRD_PADDING) + 40;
+    bubbleHeight = stringBox.height + 40;
+
+    bubbleHeight = max(bubbleHeight, MIN_WIDTH);
+    path.rectRounded(-bubbleWidth/2, -bubbleHeight/2, bubbleWidth, bubbleHeight, cornerRadius);
+
     ofPolyline polyline = path.getOutline()[0];
     polyline = polyline.getResampledBySpacing(resamplingRate);
     originEllipsePoints = polyline.getVertices();
-    
+
     for (int i = 0; i<originEllipsePoints.size(); i++){
         if (i==originEllipsePoints.size()-1 && ofDist(originEllipsePoints[0].x, originEllipsePoints[0].y, originEllipsePoints[originEllipsePoints.size()-1].x, originEllipsePoints[originEllipsePoints.size()-1].y)<20)
         {
@@ -86,11 +81,11 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
             ellipsePoints.push_back(newVec);
         }
     }
-    
+
     //FBO Blur stuff
     ofFbo::Settings s;
-    s.width = MAX_FBO_WIDTH;
-    s.height = MAX_FBO_HEIGHT;
+    s.width = bubbleWidth + FBO_SAFETY_MARGIN;
+    s.height = bubbleHeight + FBO_SAFETY_MARGIN;
     s.internalformat = GL_RGBA;
     s.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     s.maxFilter = GL_LINEAR; GL_NEAREST;
@@ -98,50 +93,49 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     s.numColorbuffers = 1;
     s.useDepth = false;
     s.useStencil = false;
-    
+
     gpuBlur.setup(s, false);
     gpuBlur.blurOffset = 18;
     gpuBlur.blurPasses = 26;
     gpuBlur.numBlurOverlays = 1;
     gpuBlur.blurOverlayGain = 255;
-
-    
 }
 
 void Tweet::update() {
-    if (alpha == 0 && display == false) {
-        //cout << "killing tweet" << endl;
+    if (alpha == 0 && fade == false) {
+        cout << "killing tweet" << endl;
         dead = true;
     }
-    
+
     colors = getTweetColor();
-    
-    if ((location.y + ellipseHeightRad * 2) < 0) {
-        display = false;
+
+    if ((location.y + bubbleHeight * 2) < 0) {
+      cout << "killing tweet" << endl;
+      dead = true;
     }
-    
+
     auto durationY = 10.f;
     auto durationX = 3.f;
     auto endTimeY = initTime + durationY;
     auto endTimeX = initTime + durationX;
     auto now = ofGetElapsedTimef();
-    
+
     location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
-    
+
     if (now < endTimeX) {
         location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
     } else {
         location.x += ofMap(ofNoise(movementNoiseSeed), 0, 1, -8, 8);
         movementNoiseSeed += 0.03;
     }
-    
+
     // adding noise to the bubble
     for (int i = 0; i<ellipsePoints.size(); i++){
         noiseSeeds[i]+=0.02;
         newVec = originEllipsePoints[i] + normVectors[i] * ofNoise(noiseSeeds[i]) * noiseStep;
         ellipsePoints[i] = newVec;
     }
-    
+
 //    gpuBlur.blurOffset = 100 * ofMap(ofGetMouseX(), 0, ofGetHeight(), 1, 0, true);
 //    gpuBlur.blurPasses = 50 * ofMap(ofGetMouseY(), 0, ofGetWidth(), 0, 1, true);
 //    cout << "Y " << 100 * ofMap(ofGetMouseY(), 0, ofGetHeight(), 1, 0, true) << endl;
@@ -153,18 +147,20 @@ void Tweet::draw() {
         ofPushMatrix();
         ofPushStyle();
         ofTranslate(location);
-        
+
         //BLUR
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
         gpuBlur.beginDrawScene();
         ofClear(0, 0, 0, 0);
         // BUBBLE STUFF
         ofPushMatrix();
-        ofTranslate(MAX_FBO_WIDTH/2, MAX_FBO_HEIGHT/2);
+        ofTranslate((bubbleWidth + FBO_SAFETY_MARGIN)/2, (bubbleHeight + FBO_SAFETY_MARGIN)/2);
+        ofPushMatrix();
+        ofTranslate(SHADOW_OFFSET, SHADOW_OFFSET);
         ofSetColor(colors.shadowColor);
         drawBubble();
+        ofPopMatrix();
         ofSetColor(colors.bubbleColor);
-        ofTranslate(SHADOW_OFFSET,SHADOW_OFFSET);
         drawBubble();
         ofPopMatrix();
         gpuBlur.endDrawScene();
@@ -178,25 +174,31 @@ void Tweet::draw() {
         //ofTranslate(mouseX, mouseY);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); //pre-multiplied alpha
         ofPushMatrix();
-        ofTranslate(-MAX_FBO_WIDTH/2, -MAX_FBO_HEIGHT/2);
+        ofTranslate(-(bubbleWidth + FBO_SAFETY_MARGIN)/2, -(bubbleHeight + FBO_SAFETY_MARGIN)/2);
         gpuBlur.drawBlurFbo();
         ofPopMatrix();
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-        
+
         // STRING STUFF
         if (!wrappedString.empty()) {
+            //ofSetColor(0,0,255);
+            //ofCircle(0,0, 5);
             ofSetColor(colors.textColor);
-            font->drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
+
+            int locX = -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2);
+            int locY = -(stringBox.height - font->getLineHeight() - BUBBLE_TOP_LEFT_SHIFT ) / 2;
+
+            font->drawString(wrappedString, locX, locY);
             ofSetColor(colors.authorColor);
-            font->drawString(author, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
+            font->drawString(author, locX, locY);
         }
         ofPopStyle();
-        
+
         // BIRD STUFF
         ofPushStyle();
         ofSetColor(colors.birdColor);
         ofFill();
-        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2) , 50, 40.65);
+        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2));// , 50, 40.65);
         ofPopStyle();
         ofPopMatrix();
     }
@@ -223,7 +225,7 @@ Tweet::TweetColors Tweet::getTweetColor() {
     colors.authorColor = ofColor(0,0,0,alpha);
     colors.birdColor = ofColor(255,255,255);
     colors.shadowColor = ofColor(50, alpha*0.85);
-    
+
     if (moodLevel < 0) {
         colors.bubbleColor.set(255,255,255,alpha);
         colors.textColor.set(50,0,0,alpha);
@@ -235,14 +237,12 @@ Tweet::TweetColors Tweet::getTweetColor() {
         colors.birdColor.set(0,255,0,alpha);
         colors.shadowColor.set(50, alpha*0.85);
     }
-    
-    if (display==false) {
+
+    if (fade==false) {
         alpha-=10;
     } else {
         alpha+=10;
     }
     alpha=ofClamp(alpha,0,255);
-    
-    
     return colors;
 }

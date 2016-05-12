@@ -30,14 +30,14 @@ void ofApp::setup() {
     faceLineWidth = 3;
 
     ofHideCursor();
-    
+
     expressionTimer.set(0);
     expressionTimer.start();
-    
+
     expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
-    
+
     font_original = new ofxTrueTypeFontUC();
-    font_original->load("OpenSansEmoji.ttf", 24, true, true);
+    font_original->load("OpenSansEmoji.ttf", 20, true, true);
 }
 
 void ofApp::update() {
@@ -76,15 +76,15 @@ void ofApp::update() {
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-        
+
         if (expressionTimer.finished()){
             if (primaryExpressionProbability >= expressionThreshold) {
                 if (primaryExpression != previousPrimaryExpression) {
                     for (int i; i < tweets.size(); i++) {
-                        tweets[i].display = false;
+                        tweets[i].fade = false;
                     }
                 }
-//              sendExpression();
+                sendExpression();
                 expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
                 int previousPrimaryExpression = primaryExpression;
@@ -94,7 +94,7 @@ void ofApp::update() {
                 expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
             }
         }
-        
+
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
         faceLocation.x = faceLocation.x * scaleRatio;
         faceLocation.y = faceLocation.y * scaleRatio;
@@ -110,7 +110,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat(), 0, 10);
+            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
             tweets.push_back(tweet);
         }
     } else {
@@ -203,7 +203,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "My dog 😂😂 😂 has died. My dog 😂😂 😂 has died. ", "aguy", 3, 0, 30);
+        tweet.setup(font_original, location, "My dog 😂😂 😂 has died. My dog 😂😂 😂 has died. ", "aguy", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
