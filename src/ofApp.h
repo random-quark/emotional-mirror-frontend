@@ -1,3 +1,8 @@
+//
+//  Created by Random Quark on 18/03/2016.
+//  randomQuark.com
+//
+
 #pragma once
 
 #include "ofMain.h"

@@ -2,8 +2,8 @@
 //  Tweet.cpp
 //  emotion-mirror-4
 //
-//  Created by Tom Chambers on 18/03/2016.
-//
+//  Created by Random Quark on 18/03/2016.
+//  randomQuark.com
 //
 
 #include "Tweet.hpp"
@@ -16,31 +16,35 @@
 #define BIRD_PADDING 20
 #define MIN_RADIUS 70
 #define BUBBLE_PADDING 10
+#define MAX_FBO_WIDTH 600
+#define MAX_FBO_HEIGHT 400
+#define SHADOW_OFFSET -15
 
 Tweet::Tweet(){
-
+    
 }
 
 void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel, int paddingWidth, int _paddingHeight) {
     location = _location;
-
+    
     moodLevel = _moodLevel;
     display = true;
     dead = false;
     paddingHeight = _paddingHeight;
-
-    text = "@" + tweetAuthor + " " + tweetContent;
+    
+    author = "@" + tweetAuthor;
+    text = author + " " + tweetContent;
     
     font = _font;
     wrappedString = Util::wrapString(text, 350, font);
     stringBox = font->getStringBoundingBox(wrappedString,0,0);
-
+    
     int width = stringBox.width + paddingWidth;
     int height = stringBox.height + paddingHeight;
-
+    
     alpha = 0;
     colors = getTweetColor();
-
+    
     //easing
     initTime = ofGetElapsedTimef();
     initLocationY = location.y;
@@ -50,9 +54,9 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
-
+    
     bird.load("twitter-bird.png");
-
+    
     //cloud stuff
     cornerRadius = 60;
     noiseStep = 40;
@@ -82,11 +86,31 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
             ellipsePoints.push_back(newVec);
         }
     }
+    
+    //FBO Blur stuff
+    ofFbo::Settings s;
+    s.width = MAX_FBO_WIDTH;
+    s.height = MAX_FBO_HEIGHT;
+    s.internalformat = GL_RGBA;
+    s.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+    s.maxFilter = GL_LINEAR; GL_NEAREST;
+    s.numSamples = 0;
+    s.numColorbuffers = 1;
+    s.useDepth = false;
+    s.useStencil = false;
+    
+    gpuBlur.setup(s, false);
+    gpuBlur.blurOffset = 18;
+    gpuBlur.blurPasses = 26;
+    gpuBlur.numBlurOverlays = 1;
+    gpuBlur.blurOverlayGain = 255;
+
+    
 }
 
 void Tweet::update() {
     if (alpha == 0 && display == false) {
-        cout << "killing tweet" << endl;
+        //cout << "killing tweet" << endl;
         dead = true;
     }
     
@@ -95,59 +119,87 @@ void Tweet::update() {
     if ((location.y + ellipseHeightRad * 2) < 0) {
         display = false;
     }
-
+    
     auto durationY = 10.f;
     auto durationX = 3.f;
     auto endTimeY = initTime + durationY;
     auto endTimeX = initTime + durationX;
     auto now = ofGetElapsedTimef();
-
+    
     location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
-
+    
     if (now < endTimeX) {
-      location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
+        location.x = ofxeasing::map(now, initTime, endTimeX, initLocationX, endLocationX, &ofxeasing::quint::easeOut);
     } else {
-      location.x += ofMap(ofNoise(movementNoiseSeed), 0, 1, -8, 8);
-      movementNoiseSeed += 0.03;
+        location.x += ofMap(ofNoise(movementNoiseSeed), 0, 1, -8, 8);
+        movementNoiseSeed += 0.03;
     }
-
+    
     // adding noise to the bubble
     for (int i = 0; i<ellipsePoints.size(); i++){
         noiseSeeds[i]+=0.02;
         newVec = originEllipsePoints[i] + normVectors[i] * ofNoise(noiseSeeds[i]) * noiseStep;
         ellipsePoints[i] = newVec;
     }
-
+    
+//    gpuBlur.blurOffset = 100 * ofMap(ofGetMouseX(), 0, ofGetHeight(), 1, 0, true);
+//    gpuBlur.blurPasses = 50 * ofMap(ofGetMouseY(), 0, ofGetWidth(), 0, 1, true);
+//    cout << "Y " << 100 * ofMap(ofGetMouseY(), 0, ofGetHeight(), 1, 0, true) << endl;
+//    cout << "X " << 50 * ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 1, true) << endl;
 }
 
 void Tweet::draw() {
     if (ellipsePoints.size()>0) {
-    ofPushMatrix();
-    ofPushStyle();
-    ofTranslate(location);
-    
-    // BUBBLE STUFF
-    ofSetColor(colors.shadowColor);
-    drawBubble();
-    ofSetColor(colors.bubbleColor);
-    ofTranslate(-7,-7);
-    drawBubble();
+        ofPushMatrix();
+        ofPushStyle();
+        ofTranslate(location);
         
-    // STRING STUFF
-    if (!wrappedString.empty()) {
-       ofSetColor(colors.textColor);
-       font->drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
-   }
-    ofPopStyle();
-
-   // BIRD STUFF
-   ofPushStyle();
-   ofSetColor(colors.birdColor);
-   ofFill();
-   bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2) , 50, 40.65);
-    ofPopStyle();
-    ofPopMatrix();
-  }
+        //BLUR
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        gpuBlur.beginDrawScene();
+        ofClear(0, 0, 0, 0);
+        // BUBBLE STUFF
+        ofPushMatrix();
+        ofTranslate(MAX_FBO_WIDTH/2, MAX_FBO_HEIGHT/2);
+        ofSetColor(colors.shadowColor);
+        drawBubble();
+        ofSetColor(colors.bubbleColor);
+        ofTranslate(SHADOW_OFFSET,SHADOW_OFFSET);
+        drawBubble();
+        ofPopMatrix();
+        gpuBlur.endDrawScene();
+        //blur the fbo
+        //blending will be disabled at this stage
+        gpuBlur.performBlur();
+        //draw the "clean" scene
+        //ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        //gpuBlur.drawSceneFBO();
+        //overlay the blur on top
+        //ofTranslate(mouseX, mouseY);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); //pre-multiplied alpha
+        ofPushMatrix();
+        ofTranslate(-MAX_FBO_WIDTH/2, -MAX_FBO_HEIGHT/2);
+        gpuBlur.drawBlurFbo();
+        ofPopMatrix();
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        
+        // STRING STUFF
+        if (!wrappedString.empty()) {
+            ofSetColor(colors.textColor);
+            font->drawString(wrappedString, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
+            ofSetColor(colors.authorColor);
+            font->drawString(author, -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2), - ((stringBox.height - font->getLineHeight()) / 2));
+        }
+        ofPopStyle();
+        
+        // BIRD STUFF
+        ofPushStyle();
+        ofSetColor(colors.birdColor);
+        ofFill();
+        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2) , 50, 40.65);
+        ofPopStyle();
+        ofPopMatrix();
+    }
 }
 
 void Tweet::drawBubble(){
@@ -167,28 +219,30 @@ void Tweet::drawBubble(){
 Tweet::TweetColors Tweet::getTweetColor() {
     Tweet::TweetColors colors;
     colors.bubbleColor = ofColor(255,255,255,0);
-    colors.textColor = ofColor(0,0,0,alpha);
+    colors.textColor = ofColor(50,0,0,alpha);
+    colors.authorColor = ofColor(0,0,0,alpha);
     colors.birdColor = ofColor(255,255,255);
-    colors.shadowColor = ofColor(50, alpha*0.75);
+    colors.shadowColor = ofColor(50, alpha*0.85);
     
     if (moodLevel < 0) {
         colors.bubbleColor.set(255,255,255,alpha);
-        colors.textColor.set(0,0,0,alpha);
+        colors.textColor.set(50,0,0,alpha);
+        colors.authorColor = ofColor(0,0,0,alpha);
         colors.birdColor.set(255,0,0,alpha);
-        colors.shadowColor.set(50, alpha*0.75);
+        colors.shadowColor.set(50, alpha*0.85);
     } else if (moodLevel > 0) {
         colors.bubbleColor.set(255,255,255,alpha);
         colors.birdColor.set(0,255,0,alpha);
-        colors.shadowColor.set(50, alpha*0.75);
+        colors.shadowColor.set(50, alpha*0.85);
     }
-
+    
     if (display==false) {
-        alpha-=5;
+        alpha-=10;
     } else {
-        alpha+=5;
+        alpha+=10;
     }
     alpha=ofClamp(alpha,0,255);
-
-
+    
+    
     return colors;
 }

@@ -1,6 +1,7 @@
 ofxCv
 ofxEasing
 ofxFaceTracker
+ofxFboBlur
 ofxGui
 ofxJSON
 ofxOpenCv

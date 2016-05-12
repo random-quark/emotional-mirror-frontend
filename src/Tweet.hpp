@@ -2,7 +2,8 @@
 //  Tweet.hpp
 //  emotion-mirror-4
 //
-//  Created by Tom Chambers on 18/03/2016.
+//  Created by Random Quark on 18/03/2016.
+//  randomQuark.com
 //
 //
 using namespace std;
@@ -17,6 +18,7 @@ using namespace std;
 #include <ofGraphics.h>
 #include <ofTrueTypeFont.h>
 #include "ofxTrueTypeFontUC.h"
+#include "ofxFboBlur.h"
 
 #define HEIGHT 900
 
@@ -33,6 +35,7 @@ public:
         ofColor shadowColor;
         ofColor textColor;
         ofColor birdColor;
+        ofColor authorColor;
     };
 
     TweetColors getTweetColor();
@@ -69,6 +72,7 @@ public:
     ofPath path;
     ofPoint newVec;
     void drawBubble();
+    ofxFboBlur gpuBlur;
 
 private:
     int ttl;

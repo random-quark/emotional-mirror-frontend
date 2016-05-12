@@ -2,8 +2,8 @@
 //  Util.hpp
 //  new-emotion-mirror copy
 //
-//  Created by Tom Chambers on 12/04/2016.
-//
+//  Created by Random Quark on 18/03/2016.
+//  randomQuark.com
 //
 
 #ifndef Util_hpp

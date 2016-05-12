@@ -1,3 +1,8 @@
+//
+//  Created by Random Quark on 18/03/2016.
+//  randomQuark.com
+//
+
 #pragma once
 #include "ofApp.h"
 
@@ -162,9 +167,8 @@ void ofApp::drawDebuggingTools() {
     ofPopMatrix();
     ofPopStyle();
 
-
-
     ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
+    ofShowCursor();
 }
 
 
@@ -194,6 +198,7 @@ void ofApp::draw() {
 void ofApp::keyPressed(int key) {
     if (key == 'd') {
         debug = !debug;
+        ofHideCursor();
     }
     if (key == 'c') {
         Tweet tweet;
