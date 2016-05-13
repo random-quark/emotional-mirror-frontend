@@ -126,7 +126,7 @@ void ofApp::update() {
         
         if (sadTimer.finished()){
             if (sadProbability >= sadThreshold) {
-                if (prevState != "sad") {
+                if (prevState == "happy") {
                     for (int i = 0; i < tweets.size(); i++) {
                         cout << tweets.size() << " " << i << endl;
                         tweets[i].fade = true;
