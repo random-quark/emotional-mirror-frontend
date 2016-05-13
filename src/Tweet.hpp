@@ -26,7 +26,7 @@ class Tweet {
 public:
     Tweet();
     void age();
-    void setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel);
+    void setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, float _moodLevel);
     void draw();
     void update();
     int getTtl();
@@ -36,6 +36,7 @@ public:
         ofColor textColor;
         ofColor birdColor;
         ofColor authorColor;
+        ofColor imageColor;
     };
 
     TweetColors getTweetColor();
@@ -44,11 +45,11 @@ public:
     float initTime;
     string text;
     string author;
+    ofImage profileImage;
     float moodLevel;
     bool fade;
     bool dead;
     ofxTrueTypeFontUC* font;
-    //int paddingHeight;
     ofPoint location;
     string wrappedString;
     ofRectangle stringBox;

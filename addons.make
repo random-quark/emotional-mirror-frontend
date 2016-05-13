@@ -6,3 +6,4 @@ ofxGui
 ofxJSON
 ofxOpenCv
 ofxTrueTypeFontUC
+ofxXmlSettings

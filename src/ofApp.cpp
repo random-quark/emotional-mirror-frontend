@@ -11,9 +11,17 @@ using namespace cv;
 #define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
 #define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
 #define LOWER_EXPRESSION_THRESHOLD 0.4
-#define UPPER_EXPRESSION_THRESHOLD 0.6
+#define UPPER_EXPRESSION_THRESHOLD 0.75
 
 void ofApp::setup() {
+    if( XML.loadFile("settings.xml") ){
+        cout << "got settings.xml successfully" << endl;
+        absolutePath = XML.getValue("settings:absolute_path", "error: no path found in xml");
+        cout << "absolute path: " << absolutePath << endl;
+    }else{
+        cout << "unable to load settings.xml check data/ folder" << endl;
+    }
+
     debug = false;
 
 	cam.initGrabber(WIDTH, HEIGHT);
@@ -31,10 +39,14 @@ void ofApp::setup() {
 
     ofHideCursor();
 
-    expressionTimer.set(0);
-    expressionTimer.start();
+    happyTimer.set(0);
+    happyTimer.start();
 
-    expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
+    sadTimer.set(0);
+    sadTimer.start();
+
+    happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+    sadThreshold = UPPER_EXPRESSION_THRESHOLD;
 
     font_original = new ofxTrueTypeFontUC();
     font_original->load("OpenSansEmoji.ttf", 20, true, true);
@@ -66,32 +78,76 @@ void ofApp::update() {
             classifier.classify(tracker);
         }
 
-        float happy = classifier.getProbability(0);
-        float sad = classifier.getProbability(1);
+        faceColor = ofColor(0,0,0);
 
+        float happy = classifier.getProbability(0);
+        float neutral = classifier.getProbability(1);
+        float sad = classifier.getProbability(2);
 
         faceColor.g = ofMap(happy, 0, 1, 0, 255);
         faceColor.r = ofMap(sad, 0, 1, 0, 255);
+
+        if (classifier.getPrimaryExpression() == 1) {
+            faceColor = ofColor(255,255,255);
+        }
 
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        if (expressionTimer.finished() && tracker.getHaarFound()){
-            if (primaryExpressionProbability >= expressionThreshold) {
-                if (primaryExpression != previousPrimaryExpression) {
-                    for (int i; i < tweets.size(); i++) {
-                        tweets[i].fade = false;
+        float happyProbability = classifier.getProbability(0);
+        float sadProbability = classifier.getProbability(2);
+
+        if (happyTimer.finished() && tracker.getHaarFound()){
+            if (happyProbability >= happyThreshold) {
+                if (prevState == "sad") {
+                    for (int i = 0; i < tweets.size(); i++) {
+                        tweets[i].fade = true;
                     }
                 }
-                sendExpression();
-                expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
-                expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
-                int previousPrimaryExpression = primaryExpression;
+
+                if (USE_SERVER) {
+                    sendExpression();
+                }
+
+                happyTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
+                sadTimer.reset(0);
+
+                happyThreshold = LOWER_EXPRESSION_THRESHOLD;
+                sadThreshold = UPPER_EXPRESSION_THRESHOLD;
+
+                prevState = "happy";
             }
-            else if (primaryExpressionProbability < expressionThreshold) {
-                expressionTimer.reset(0);
-                expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
+            else if (happyProbability < happyThreshold) {
+                happyTimer.reset(0);
+                happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+            }
+        }
+
+        if (sadTimer.finished() && tracker.getHaarFound()){
+            if (sadProbability >= sadThreshold) {
+                if (prevState == "happy") {
+                    for (int i = 0; i < tweets.size(); i++) {
+                        cout << tweets.size() << " " << i << endl;
+                        tweets[i].fade = true;
+                    }
+                }
+
+                if (USE_SERVER) {
+                    sendExpression();
+                }
+
+                sadTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
+                happyTimer.reset(0);
+
+                sadThreshold = LOWER_EXPRESSION_THRESHOLD;
+                happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+
+                prevState = "sad";
+            }
+            else if (sadProbability < sadThreshold) {
+                sadTimer.reset(0);
+                sadThreshold = UPPER_EXPRESSION_THRESHOLD;
             }
         }
 
@@ -110,7 +166,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
+            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
             tweets.push_back(tweet);
         }
     } else {
@@ -159,7 +215,9 @@ void ofApp::drawDebuggingTools() {
     ofTranslate(0, h + 5);
     ofDrawBitmapString("Framerate: " + to_string(ofGetFrameRate()), 5, 9);
     ofTranslate(0, h + 5);
-    ofDrawBitmapString("Expression threshold:  " + to_string(expressionThreshold), 5, 9);
+    ofDrawBitmapString("Happy threshold:  " + to_string(happyThreshold), 5, 9);
+    ofTranslate(0, h + 5);
+    ofDrawBitmapString("Sad threshold:  " + to_string(sadThreshold), 5, 9);
     ofTranslate(0, h + 5);
     if (searchError) {
         ofDrawBitmapString("Could not connect to server (at frame: " + to_string(ofGetFrameNum()) + ")", 5, 9);
@@ -203,7 +261,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "My dog 😂😂 😂 has died. My dog 😂😂 😂 has died. ", "aguy", 3);
+        tweet.setup(font_original, location, "mini tweet y d", "aguy", "profile.jpg", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {

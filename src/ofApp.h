@@ -12,6 +12,7 @@
 #include "Tweet.hpp"
 #include "Timer.hpp"
 #include "ofxTrueTypeFontUC.h"
+#include "ofxXmlSettings.h"
 
 #define RECEIVER_PORT 12345
 #define SENDER_PORT 12346
@@ -20,7 +21,8 @@
 #define CAM_SCALE 20
 #define WIDTH 640.0
 #define HEIGHT 480.0
-#define VERTICAL true
+#define VERTICAL false
+#define USE_SERVER true
 
 class ofApp : public ofBaseApp {
 public:
@@ -32,6 +34,7 @@ public:
     void drawDebuggingTools();
     void urlResponse(ofHttpResponse & response);
 
+    ofxXmlSettings XML;
     ofVideoGrabber cam;
     ofImage flippedCam;
     ofxFaceTracker tracker;
@@ -39,15 +42,18 @@ public:
     vector<Tweet> tweets;
     bool debug;
     bool searchError;
-		float scaleRatio;
+    float scaleRatio;
 	ExpressionClassifier classifier;
     ofColor faceColor;
     int faceLineWidth;
     string expression;
-    Timer expressionTimer;
+    Timer happyTimer;
+    Timer sadTimer;
     
-    int previousPrimaryExpression;
-    float expressionThreshold;
+    string prevState;
+    float happyThreshold;
+    float sadThreshold;
+    string absolutePath;
 
 private:
     ofxTrueTypeFontUC* font_original;
