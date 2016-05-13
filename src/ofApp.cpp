@@ -11,7 +11,7 @@ using namespace cv;
 #define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
 #define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
 #define LOWER_EXPRESSION_THRESHOLD 0.4
-#define UPPER_EXPRESSION_THRESHOLD 0.6
+#define UPPER_EXPRESSION_THRESHOLD 0.75
 
 void ofApp::setup() {
     debug = false;
@@ -30,12 +30,16 @@ void ofApp::setup() {
     faceLineWidth = 3;
 
     ofHideCursor();
-
-    expressionTimer.set(0);
-    expressionTimer.start();
-
-    expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
-
+    
+    happyTimer.set(0);
+    happyTimer.start();
+    
+    sadTimer.set(0);
+    sadTimer.start();
+    
+    happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+    sadThreshold = UPPER_EXPRESSION_THRESHOLD;
+    
     font_original = new ofxTrueTypeFontUC();
     font_original->load("OpenSansEmoji.ttf", 20, true, true);
 }
@@ -65,33 +69,72 @@ void ofApp::update() {
         if(tracker.update(toCv(flippedCam))) {
             classifier.classify(tracker);
         }
+        
+        faceColor = ofColor(0,0,0);
 
         float happy = classifier.getProbability(0);
-        float sad = classifier.getProbability(1);
-
-
+        float neutral = classifier.getProbability(1);
+        float sad = classifier.getProbability(2);
+        
         faceColor.g = ofMap(happy, 0, 1, 0, 255);
         faceColor.r = ofMap(sad, 0, 1, 0, 255);
+        
+        if (classifier.getPrimaryExpression() == 1) {
+            faceColor = ofColor(255,255,255);
+        }
 
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-
-        if (expressionTimer.finished()){
-            if (primaryExpressionProbability >= expressionThreshold) {
-                if (primaryExpression != previousPrimaryExpression) {
+        
+        float happyProbability = classifier.getProbability(0);
+        float sadProbability = classifier.getProbability(2);
+        
+        if (happyTimer.finished()){
+            if (happyProbability >= happyThreshold) {
+                if (prevState == "sad") {
                     for (int i; i < tweets.size(); i++) {
-                        tweets[i].fade = false;
+                        tweets[i].fade = true;
                     }
                 }
+                
                 sendExpression();
-                expressionTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
-                expressionThreshold = LOWER_EXPRESSION_THRESHOLD;
-                int previousPrimaryExpression = primaryExpression;
+                
+                happyTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
+                sadTimer.reset(0);
+                
+                happyThreshold = LOWER_EXPRESSION_THRESHOLD;
+                sadThreshold = UPPER_EXPRESSION_THRESHOLD;
+                
+                prevState = "happy";
             }
-            else if (primaryExpressionProbability < expressionThreshold) {
-                expressionTimer.reset(0);
-                expressionThreshold = UPPER_EXPRESSION_THRESHOLD;
+            else if (happyProbability < happyThreshold) {
+                happyTimer.reset(0);
+                happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+            }
+        }
+        
+        if (sadTimer.finished()){
+            if (sadProbability >= sadThreshold) {
+                if (prevState != "sad") {
+                    for (int i; i < tweets.size(); i++) {
+                        tweets[i].fade = true;
+                    }
+                }
+                
+                sendExpression();
+                
+                sadTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
+                happyTimer.reset(0);
+                
+                sadThreshold = LOWER_EXPRESSION_THRESHOLD;
+                happyThreshold = UPPER_EXPRESSION_THRESHOLD;
+                
+                prevState = "sad";
+            }
+            else if (sadProbability < sadThreshold) {
+                sadTimer.reset(0);
+                sadThreshold = UPPER_EXPRESSION_THRESHOLD;
             }
         }
 
@@ -159,7 +202,9 @@ void ofApp::drawDebuggingTools() {
     ofTranslate(0, h + 5);
     ofDrawBitmapString("Framerate: " + to_string(ofGetFrameRate()), 5, 9);
     ofTranslate(0, h + 5);
-    ofDrawBitmapString("Expression threshold:  " + to_string(expressionThreshold), 5, 9);
+    ofDrawBitmapString("Happy threshold:  " + to_string(happyThreshold), 5, 9);
+    ofTranslate(0, h + 5);
+    ofDrawBitmapString("Sad threshold:  " + to_string(sadThreshold), 5, 9);
     ofTranslate(0, h + 5);
     if (searchError) {
         ofDrawBitmapString("Could not connect to server (at frame: " + to_string(ofGetFrameNum()) + ")", 5, 9);

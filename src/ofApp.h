@@ -44,10 +44,12 @@ public:
     ofColor faceColor;
     int faceLineWidth;
     string expression;
-    Timer expressionTimer;
+    Timer happyTimer;
+    Timer sadTimer;
     
-    int previousPrimaryExpression;
-    float expressionThreshold;
+    string prevState;
+    float happyThreshold;
+    float sadThreshold;
 
 private:
     ofxTrueTypeFontUC* font_original;
