@@ -21,3 +21,4 @@ To run on Ubuntu
 * setup supervisord config
 * add xrandr --output HDMI1 --rotate right to startup applications
 * add supervisord to startup applications (ensure it's alphabetically after previous command)
+* edit ./bin/data/settings.xml and set absolute_path to the directory in emotional-mirror-backend where profile images are saved by spider
