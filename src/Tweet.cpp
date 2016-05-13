@@ -117,6 +117,10 @@ void Tweet::update() {
     auto endTimeY = initTime + durationY;
     auto endTimeX = initTime + durationX;
     auto now = ofGetElapsedTimef();
+    
+    if (initTime + 12.f < now) {
+        fade = true;
+    }
 
     location.y = ofxeasing::map(now, initTime, endTimeY, initLocationY, endLocationY, &ofxeasing::linear::easeInOut);
 

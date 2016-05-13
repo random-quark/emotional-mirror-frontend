@@ -93,7 +93,7 @@ void ofApp::update() {
         if (happyTimer.finished()){
             if (happyProbability >= happyThreshold) {
                 if (prevState == "sad") {
-                    for (int i; i < tweets.size(); i++) {
+                    for (int i = 0; i < tweets.size(); i++) {
                         tweets[i].fade = true;
                     }
                 }
@@ -117,7 +117,8 @@ void ofApp::update() {
         if (sadTimer.finished()){
             if (sadProbability >= sadThreshold) {
                 if (prevState != "sad") {
-                    for (int i; i < tweets.size(); i++) {
+                    for (int i = 0; i < tweets.size(); i++) {
+                        cout << tweets.size() << " " << i << endl;
                         tweets[i].fade = true;
                     }
                 }
@@ -248,7 +249,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "My dog 😂😂 😂 has died. My dog 😂😂 😂 has died. ", "aguy", 3);
+        tweet.setup(font_original, location, "mini tweet", "aguy", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
