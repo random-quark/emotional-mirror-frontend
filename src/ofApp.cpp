@@ -166,7 +166,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), "profile.jpg", tweetsJSON[i]["sentiment"]["compound"].asFloat());
+            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
             tweets.push_back(tweet);
         }
     } else {
