@@ -201,10 +201,11 @@ void Tweet::draw() {
             ofTranslate(0, -30);
         }
         
+        ofPushStyle();
+        ofSetColor(colors.imageColor);
         profileImage.draw(ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height /2), 48, 48);
 
         // BIRD STUFF
-        ofPushStyle();
         ofSetColor(colors.birdColor);
         ofFill();
         bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + 60));// , 50, 40.65);
@@ -234,6 +235,7 @@ Tweet::TweetColors Tweet::getTweetColor() {
     colors.authorColor = ofColor(0,0,0,alpha);
     colors.birdColor = ofColor(255,255,255);
     colors.shadowColor = ofColor(50, alpha*0.85);
+    colors.imageColor = ofColor(255, alpha);
 
     if (moodLevel < 0) {
         colors.bubbleColor.set(255,255,255,alpha);

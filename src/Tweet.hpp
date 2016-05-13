@@ -36,6 +36,7 @@ public:
         ofColor textColor;
         ofColor birdColor;
         ofColor authorColor;
+        ofColor imageColor;
     };
 
     TweetColors getTweetColor();
