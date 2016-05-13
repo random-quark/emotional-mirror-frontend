@@ -14,6 +14,14 @@ using namespace cv;
 #define UPPER_EXPRESSION_THRESHOLD 0.75
 
 void ofApp::setup() {
+    if( XML.loadFile("settings.xml") ){
+        cout << "got settings.xml successfully" << endl;
+        absolutePath = XML.getValue("settings:absolute_path", "error: no path found in xml");
+        cout << "absolute path: " << absolutePath << endl;
+    }else{
+        cout << "unable to load settings.xml check data/ folder" << endl;
+    }
+    
     debug = false;
 
 	cam.initGrabber(WIDTH, HEIGHT);

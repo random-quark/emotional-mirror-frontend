@@ -12,6 +12,7 @@
 #include "Tweet.hpp"
 #include "Timer.hpp"
 #include "ofxTrueTypeFontUC.h"
+#include "ofxXmlSettings.h"
 
 #define RECEIVER_PORT 12345
 #define SENDER_PORT 12346
@@ -33,6 +34,7 @@ public:
     void drawDebuggingTools();
     void urlResponse(ofHttpResponse & response);
 
+    ofxXmlSettings XML;
     ofVideoGrabber cam;
     ofImage flippedCam;
     ofxFaceTracker tracker;
@@ -51,6 +53,7 @@ public:
     string prevState;
     float happyThreshold;
     float sadThreshold;
+    string absolutePath;
 
 private:
     ofxTrueTypeFontUC* font_original;
