@@ -44,8 +44,6 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     initTime = ofGetElapsedTimef();
     initLocationY = location.y;
     initLocationX = location.x;
-    //cout << "INIT LOC X: " << initLocationX << endl;
-    //cout << "INIT LOC Y: " << initLocationY << endl;
     endLocationY = 0;
     minX = (stringBox.width + BIRD_SIZE + BIRD_PADDING)/2;                      // MIN location of tweet on x-axis
     maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);   // MAX location of tweet on x-axis
