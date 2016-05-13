@@ -48,7 +48,6 @@ public:
     bool fade;
     bool dead;
     ofxTrueTypeFontUC* font;
-    //int paddingHeight;
     ofPoint location;
     string wrappedString;
     ofRectangle stringBox;
