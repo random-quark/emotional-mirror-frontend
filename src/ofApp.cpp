@@ -77,7 +77,7 @@ void ofApp::update() {
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        if (expressionTimer.finished()){
+        if (expressionTimer.finished() && tracker.getHaarFound()){
             if (primaryExpressionProbability >= expressionThreshold) {
                 if (primaryExpression != previousPrimaryExpression) {
                     for (int i; i < tweets.size(); i++) {
