@@ -12,10 +12,8 @@
 #include <algorithm>
 
 #define BIRD_SIZE 35
-#define BIRD_PADDING 20
-#define MIN_WIDTH 70
-#define MAX_FBO_WIDTH 600
-#define MAX_FBO_HEIGHT 400
+#define BIRD_PADDING 25
+#define MIN_HEIGHT 140
 #define FBO_SAFETY_MARGIN 150
 #define SHADOW_OFFSET 15
 #define BUBBLE_TOP_LEFT_SHIFT 15  // bigger values push the text down to center it properly
@@ -23,7 +21,7 @@
 Tweet::Tweet(){
 }
 
-void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, float _moodLevel) {
+void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, float _moodLevel) {
     location = _location;
 
     moodLevel = _moodLevel;
@@ -49,8 +47,9 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);   // MAX location of tweet on x-axis
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
-
-    bird.load("twitter-bird-50px.png");
+    
+    bird.load("twitter-bird-48px.png");
+    profileImage.load(profileImageUrl);
 
     //cloud stuff
     cornerRadius = 60;
@@ -60,7 +59,7 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     bubbleWidth = (stringBox.width + BIRD_SIZE + BIRD_PADDING) + 40;
     bubbleHeight = stringBox.height + 40;
 
-    bubbleHeight = max(bubbleHeight, MIN_WIDTH);
+    bubbleHeight = max(bubbleHeight, MIN_HEIGHT);
     path.rectRounded(-bubbleWidth/2, -bubbleHeight/2, bubbleWidth, bubbleHeight, cornerRadius);
 
     ofPolyline polyline = path.getOutline()[0];
@@ -195,12 +194,20 @@ void Tweet::draw() {
             font->drawString(author, locX, locY);
         }
         ofPopStyle();
+        
+        
+        cout << stringBox.height << " " << font->getLineHeight() << endl;
+        if (abs(stringBox.height - font->getLineHeight()) < 5) {
+            ofTranslate(0, -30);
+        }
+        
+        profileImage.draw(ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height /2), 48, 48);
 
         // BIRD STUFF
         ofPushStyle();
         ofSetColor(colors.birdColor);
         ofFill();
-        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2));// , 50, 40.65);
+        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + 60));// , 50, 40.65);
         ofPopStyle();
         ofPopMatrix();
     }

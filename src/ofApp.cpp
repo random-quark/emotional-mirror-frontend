@@ -98,7 +98,9 @@ void ofApp::update() {
                     }
                 }
                 
-                sendExpression();
+                if (USE_SERVER) {
+                    sendExpression();
+                }
                 
                 happyTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 sadTimer.reset(0);
@@ -123,7 +125,9 @@ void ofApp::update() {
                     }
                 }
                 
-                sendExpression();
+                if (USE_SERVER) {
+                    sendExpression();
+                }
                 
                 sadTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 happyTimer.reset(0);
@@ -154,7 +158,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
         for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
             ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
             Tweet tweet;
-            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
+            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), "profile.jpg", tweetsJSON[i]["sentiment"]["compound"].asFloat());
             tweets.push_back(tweet);
         }
     } else {
@@ -249,7 +253,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "mini tweet", "aguy", 3);
+        tweet.setup(font_original, location, "mini tweet y d", "aguy", "profile.jpg", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
