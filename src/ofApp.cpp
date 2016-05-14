@@ -261,7 +261,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "mini tweet y d", "aguy", "profile.jpg", 3);
+        tweet.setup(font_original, location, "mini tweet mini tweet mini tweet mini tweet mini tweet mini tweet mini tweet mini tweet", "aguy", "profile.jpg", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
