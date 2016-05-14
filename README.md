@@ -4,6 +4,7 @@ To run on Ubuntu
 
 * Install a fresh copy of Ubuntu (tested on 14.04)
 * Install backend as per instructions in random-quark/emotional-mirror-backend
+* Stuff to do on Ubuntu machine to make sure it run smoothly, see: emotional-mirror-backend/COMPUTER_SETUP.md
 * Install openFrameworks 0.9.3
 * Install needed addons
   * ofxCv
@@ -17,8 +18,4 @@ To run on Ubuntu
 * cd emotional-mirror-frontend
 * make
 * make RunRelease
-* install supervisord
-* setup supervisord config
-* add xrandr --output HDMI1 --rotate right to startup applications
-* add supervisord to startup applications (ensure it's alphabetically after previous command)
 * edit ./bin/data/settings.xml and set absolute_path to the directory in emotional-mirror-backend where profile images are saved by spider

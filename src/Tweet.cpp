@@ -43,8 +43,8 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     initLocationY = location.y;
     initLocationX = location.x;
     endLocationY = 0;
-    minX = (stringBox.width + BIRD_SIZE + BIRD_PADDING)/2;                      // MIN location of tweet on x-axis
-    maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);   // MAX location of tweet on x-axis
+    minX = ((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2) + 100;                      // MIN location of tweet on x-axis
+    maxX = ofGetWidth() - (stringBox.width - BIRD_SIZE + BIRD_PADDING) / 2 - 100;   // MAX location of tweet on x-axis
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
 
@@ -137,6 +137,8 @@ void Tweet::update() {
         ellipsePoints[i] = newVec;
     }
 
+    location.x = ofClamp(location.x, minX, maxX);
+
 //    gpuBlur.blurOffset = 100 * ofMap(ofGetMouseX(), 0, ofGetHeight(), 1, 0, true);
 //    gpuBlur.blurPasses = 50 * ofMap(ofGetMouseY(), 0, ofGetWidth(), 0, 1, true);
 //    cout << "Y " << 100 * ofMap(ofGetMouseY(), 0, ofGetHeight(), 1, 0, true) << endl;
@@ -182,8 +184,6 @@ void Tweet::draw() {
 
         // STRING STUFF
         if (!wrappedString.empty()) {
-            //ofSetColor(0,0,255);
-            //ofCircle(0,0, 5);
             ofSetColor(colors.textColor);
 
             int locX = -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2);
@@ -195,8 +195,6 @@ void Tweet::draw() {
         }
         ofPopStyle();
 
-
-        cout << stringBox.height << " " << font->getLineHeight() << endl;
         if (abs(stringBox.height - font->getLineHeight()) < 5) {
             ofTranslate(0, -30);
         }
