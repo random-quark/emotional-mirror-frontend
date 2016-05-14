@@ -198,7 +198,11 @@ void Tweet::draw() {
         if (abs(stringBox.height - font->getLineHeight()) < 5) {
             ofTranslate(0, -30);
         }
-
+        
+        if (abs(stringBox.height - font->getLineHeight() * 2) < 5) {
+            ofTranslate(0, -15);
+        }
+        
         ofPushStyle();
         ofSetColor(colors.imageColor);
         profileImage.draw(ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height /2), 48, 48);
