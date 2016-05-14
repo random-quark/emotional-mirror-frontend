@@ -5,7 +5,7 @@
 
 /bin/*
 !/bin/data/
-
+/bin/data/settings.xml
 #########
 # general
 #########

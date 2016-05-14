@@ -19,10 +19,17 @@
 #define SENDER_HOST "localhost"
 #define TWEET_LIFESPAN 300
 #define CAM_SCALE 20
-#define WIDTH 640.0
-#define HEIGHT 480.0
+#define CAMERA_WIDTH 640.0
+#define CAMERA_HEIGHT 480.0
 #define VERTICAL true
 #define USE_SERVER true
+#define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
+#define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
+#define LOWER_EXPRESSION_THRESHOLD 0.4
+#define UPPER_EXPRESSION_THRESHOLD 0.65
+#define HAPPY 0
+#define NEUTRAL 1
+#define SAD 2
 
 class ofApp : public ofBaseApp {
 public:
@@ -49,7 +56,7 @@ public:
     string expression;
     Timer happyTimer;
     Timer sadTimer;
-    
+
     string prevState;
     float happyThreshold;
     float sadThreshold;

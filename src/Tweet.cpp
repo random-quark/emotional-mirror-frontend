@@ -47,7 +47,7 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     maxX = (ofGetWidth() - stringBox.width / 2) - (BIRD_SIZE + BIRD_PADDING);   // MAX location of tweet on x-axis
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
-    
+
     bird.load("twitter-bird-48px.png");
     profileImage.load(profileImageUrl);
 
@@ -116,7 +116,7 @@ void Tweet::update() {
     auto endTimeY = initTime + durationY;
     auto endTimeX = initTime + durationX;
     auto now = ofGetElapsedTimef();
-    
+
     if (initTime + 12.f < now) {
         fade = true;
     }
@@ -132,7 +132,7 @@ void Tweet::update() {
 
     // adding noise to the bubble
     for (int i = 0; i<ellipsePoints.size(); i++){
-        noiseSeeds[i]+=0.02;
+        noiseSeeds[i]+=0.04;
         newVec = originEllipsePoints[i] + normVectors[i] * ofNoise(noiseSeeds[i]) * noiseStep;
         ellipsePoints[i] = newVec;
     }
@@ -194,13 +194,13 @@ void Tweet::draw() {
             font->drawString(author, locX, locY);
         }
         ofPopStyle();
-        
-        
+
+
         cout << stringBox.height << " " << font->getLineHeight() << endl;
         if (abs(stringBox.height - font->getLineHeight()) < 5) {
             ofTranslate(0, -30);
         }
-        
+
         ofPushStyle();
         ofSetColor(colors.imageColor);
         profileImage.draw(ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height /2), 48, 48);
@@ -241,11 +241,11 @@ Tweet::TweetColors Tweet::getTweetColor() {
         colors.bubbleColor.set(255,255,255,alpha);
         colors.textColor.set(50,0,0,alpha);
         colors.authorColor = ofColor(0,0,0,alpha);
-        colors.birdColor.set(255,0,0,alpha);
+        colors.birdColor.set(200,0,0,alpha);
         colors.shadowColor.set(50, alpha*0.85);
     } else if (moodLevel > 0) {
         colors.bubbleColor.set(255,255,255,alpha);
-        colors.birdColor.set(0,255,0,alpha);
+        colors.birdColor.set(0,200,0,alpha);
         colors.shadowColor.set(50, alpha*0.85);
     }
 

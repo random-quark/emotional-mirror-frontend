@@ -8,10 +8,6 @@
 
 using namespace ofxCv;
 using namespace cv;
-#define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
-#define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
-#define LOWER_EXPRESSION_THRESHOLD 0.4
-#define UPPER_EXPRESSION_THRESHOLD 0.75
 
 void ofApp::setup() {
     if( XML.loadFile("settings.xml") ){
@@ -24,13 +20,12 @@ void ofApp::setup() {
 
     debug = false;
 
-	cam.initGrabber(WIDTH, HEIGHT);
-    scaleRatio = ofGetHeight()/HEIGHT;
-	tracker.setup();
-	tracker.setRescale(.5);
+	  cam.initGrabber(CAMERA_WIDTH, CAMERA_HEIGHT);
+	  tracker.setup();
+	  tracker.setRescale(.5);
     classifier.load("expressions");
 
-    flippedCam.allocate(WIDTH, HEIGHT, OF_IMAGE_COLOR);
+    flippedCam.allocate(CAMERA_WIDTH, CAMERA_HEIGHT, OF_IMAGE_COLOR);
 
     ofRegisterURLNotification(this);
 
@@ -64,6 +59,10 @@ void ofApp::update() {
         }
     }
 
+  //calculate how much to enlare screen
+  if (VERTICAL == true) scaleRatio = ofGetHeight()/CAMERA_WIDTH;
+  else scaleRatio = ofGetWidth()/CAMERA_WIDTH;
+
 	cam.update();
 
     ofImage smallCam;
@@ -78,25 +77,22 @@ void ofApp::update() {
             classifier.classify(tracker);
         }
 
-        faceColor = ofColor(0,0,0);
-
-        float happy = classifier.getProbability(0);
-        float neutral = classifier.getProbability(1);
-        float sad = classifier.getProbability(2);
-
-        faceColor.g = ofMap(happy, 0, 1, 0, 255);
-        faceColor.r = ofMap(sad, 0, 1, 0, 255);
-
-        if (classifier.getPrimaryExpression() == 1) {
-            faceColor = ofColor(255,255,255);
-        }
-
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
 
-        float happyProbability = classifier.getProbability(0);
-        float sadProbability = classifier.getProbability(2);
+        float happyProbability = classifier.getProbability(HAPPY);
+        float neutralProbability = classifier.getProbability(NEUTRAL);
+        float sadProbability = classifier.getProbability(SAD);
+
+        if (classifier.getPrimaryExpression() == NEUTRAL) {
+            faceColor = ofColor(255,255,255);
+        }
+        else {
+          faceColor = ofColor(0,0,0);
+          faceColor.g = ofMap(happyProbability, 0, 1, 0, 255);
+          faceColor.r = ofMap(sadProbability, 0, 1, 0, 255);
+        }
 
         if (happyTimer.finished() && tracker.getHaarFound()){
             if (happyProbability >= happyThreshold) {
@@ -261,7 +257,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "mini tweet y d", "aguy", "profile.jpg", 3);
+        tweet.setup(font_original, location, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.", "aguy", "profile.jpg", 3);
         tweets.push_back(tweet);
     }
 	if(key == 'f') {
