@@ -276,11 +276,4 @@ void ofApp::keyPressed(int key) {
 	if(key == 'l') {
 		classifier.load("expressions");
 	}
-
-    if(key == 'h') {
-        classifier.save("expressions");
-    }
-    if(key == 'j') {
-        classifier.save("expressions");
-    }
 }

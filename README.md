@@ -19,3 +19,5 @@ To run on Ubuntu
 * make
 * make RunRelease
 * edit ./bin/data/settings.xml and set absolute_path to the directory in emotional-mirror-backend where profile images are saved by spider
+
+* in the ofxFaceTracker go to `ExpressionClassifier` class and the `load(string directory)` function and add this line `dir.sort();` immediately after the `ofDirectory dir(directory);` line. This is to short the expressions alphabetically.
