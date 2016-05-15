@@ -172,13 +172,12 @@ void ofApp::urlResponse(ofHttpResponse & response) {
 }
 
 void ofApp::sendExpression() {
-    int primary = classifier.getPrimaryExpression();
-    expression = classifier.getDescription(primary);
+    int primaryExpression = classifier.getPrimaryExpression();
 
     string url = "";
-    if (expression == "sad") {
+    if (primaryExpression == SAD) {
         url = "http://localhost:5000/search?&neg_rel=$gt&neg_value=0.4&randomize_results=True&max_results=1";
-    } else if (expression == "happy") {
+    } else if (primaryExpression == HAPPY) {
         url = "http://localhost:5000/search?&pos_rel=$gt&pos_value=0.4&randomize_results=True&max_results=1";
     }
 
