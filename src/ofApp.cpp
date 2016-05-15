@@ -166,10 +166,13 @@ void ofApp::urlResponse(ofHttpResponse & response) {
                 tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
                 tweets.push_back(tweet);
             }
+            
         } else {
-            cout << "Failed: " << response.status << " " << response.error << endl;
-            searchError = true;
+            cout << "Expression received but no face found" << endl;
         }
+    } else {
+        cout << "Failed: " << response.status << " " << response.error << endl;
+        searchError = true;
     }
 }
 
