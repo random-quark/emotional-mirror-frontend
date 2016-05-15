@@ -17,32 +17,32 @@ void ofApp::setup() {
     }else{
         cout << "unable to load settings.xml check data/ folder" << endl;
     }
-
+    
     debug = false;
-
-	  cam.initGrabber(CAMERA_WIDTH, CAMERA_HEIGHT);
-	  tracker.setup();
-	  tracker.setRescale(.5);
+    
+    cam.initGrabber(CAMERA_WIDTH, CAMERA_HEIGHT);
+    tracker.setup();
+    tracker.setRescale(.5);
     classifier.load("expressions");
-
+    
     flippedCam.allocate(CAMERA_WIDTH, CAMERA_HEIGHT, OF_IMAGE_COLOR);
-
+    
     ofRegisterURLNotification(this);
-
+    
     faceColor = ofColor(0,0,0);
     faceLineWidth = 3;
-
+    
     ofHideCursor();
-
+    
     happyTimer.set(0);
     happyTimer.start();
-
+    
     sadTimer.set(0);
     sadTimer.start();
-
+    
     happyThreshold = UPPER_EXPRESSION_THRESHOLD;
     sadThreshold = UPPER_EXPRESSION_THRESHOLD;
-
+    
     font_original = new ofxTrueTypeFontUC();
     font_original->load("OpenSansEmoji.ttf", 20, true, true);
 }
@@ -51,49 +51,49 @@ void ofApp::update() {
     for (int i=0; i<tweets.size(); i++) {
         tweets[i].update();
     }
-
+    
     for (int i=0; i<tweets.size(); i++) {
         if (tweets[i].dead) {
             tweets.erase(tweets.begin() + i);
             continue;
         }
     }
-
-  //calculate how much to enlare screen
-  if (VERTICAL == true) scaleRatio = ofGetHeight()/CAMERA_WIDTH;
-  else scaleRatio = ofGetWidth()/CAMERA_WIDTH;
-
-	cam.update();
-
+    
+    //calculate how much to enlare screen
+    if (VERTICAL == true) scaleRatio = ofGetHeight()/CAMERA_WIDTH;
+    else scaleRatio = ofGetWidth()/CAMERA_WIDTH;
+    
+    cam.update();
+    
     ofImage smallCam;
-
+    
     if(cam.isFrameNew()) {
         flippedCam = cam.getPixels();
         flippedCam.mirror(false, true);
-
+        
         if (VERTICAL) flippedCam.rotate90(3);
-
+        
         if(tracker.update(toCv(flippedCam))) {
             classifier.classify(tracker);
         }
-
+        
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
         faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
-
+        
         float happyProbability = classifier.getProbability(HAPPY);
         float neutralProbability = classifier.getProbability(NEUTRAL);
         float sadProbability = classifier.getProbability(SAD);
-
+        
         if (classifier.getPrimaryExpression() == NEUTRAL) {
             faceColor = ofColor(255,255,255);
         }
         else {
-          faceColor = ofColor(0,0,0);
-          faceColor.g = ofMap(happyProbability, 0, 1, 0, 255);
-          faceColor.r = ofMap(sadProbability, 0, 1, 0, 255);
+            faceColor = ofColor(0,0,0);
+            faceColor.g = ofMap(happyProbability, 0, 1, 0, 255);
+            faceColor.r = ofMap(sadProbability, 0, 1, 0, 255);
         }
-
+        
         if (happyTimer.finished() && tracker.getHaarFound()){
             if (happyProbability >= happyThreshold) {
                 if (prevState == "sad") {
@@ -101,17 +101,17 @@ void ofApp::update() {
                         tweets[i].fade = true;
                     }
                 }
-
+                
                 if (USE_SERVER) {
                     sendExpression();
                 }
-
+                
                 happyTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 sadTimer.reset(0);
-
+                
                 happyThreshold = LOWER_EXPRESSION_THRESHOLD;
                 sadThreshold = UPPER_EXPRESSION_THRESHOLD;
-
+                
                 prevState = "happy";
             }
             else if (happyProbability < happyThreshold) {
@@ -119,7 +119,7 @@ void ofApp::update() {
                 happyThreshold = UPPER_EXPRESSION_THRESHOLD;
             }
         }
-
+        
         if (sadTimer.finished() && tracker.getHaarFound()){
             if (sadProbability >= sadThreshold) {
                 if (prevState == "happy") {
@@ -128,17 +128,17 @@ void ofApp::update() {
                         tweets[i].fade = true;
                     }
                 }
-
+                
                 if (USE_SERVER) {
                     sendExpression();
                 }
-
+                
                 sadTimer.reset(MIN_MILLIS_BETWEEN_EXPRESSIONS + ofRandom(RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS));
                 happyTimer.reset(0);
-
+                
                 sadThreshold = LOWER_EXPRESSION_THRESHOLD;
                 happyThreshold = UPPER_EXPRESSION_THRESHOLD;
-
+                
                 prevState = "sad";
             }
             else if (sadProbability < sadThreshold) {
@@ -146,7 +146,7 @@ void ofApp::update() {
                 sadThreshold = UPPER_EXPRESSION_THRESHOLD;
             }
         }
-
+        
         faceLocation = tracker.getImageFeature(ofxFaceTracker::NOSE_BRIDGE).getCentroid2D();
         faceLocation.x = faceLocation.x * scaleRatio;
         faceLocation.y = faceLocation.y * scaleRatio;
@@ -155,40 +155,42 @@ void ofApp::update() {
 
 void ofApp::urlResponse(ofHttpResponse & response) {
     if (response.status==200) {
-        ofxJSONElement result = response.data.getText();
-        searchError = false;
-
-        Json::Value tweetsJSON = result["tweets"];
-        for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
-            ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
-            Tweet tweet;
-            tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
-            tweets.push_back(tweet);
+        if (tracker.getHaarFound()) {
+            ofxJSONElement result = response.data.getText();
+            searchError = false;
+            
+            Json::Value tweetsJSON = result["tweets"];
+            for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
+                ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
+                Tweet tweet;
+                tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
+                tweets.push_back(tweet);
+            }
+        } else {
+            cout << "Failed: " << response.status << " " << response.error << endl;
+            searchError = true;
         }
-    } else {
-        cout << "Failed: " << response.status << " " << response.error << endl;
-        searchError = true;
     }
 }
 
 void ofApp::sendExpression() {
     int primaryExpression = classifier.getPrimaryExpression();
-
+    
     string url = "";
     if (primaryExpression == SAD) {
         url = "http://localhost:5000/search?&neg_rel=$gt&neg_value=0.4&randomize_results=True&max_results=1";
     } else if (primaryExpression == HAPPY) {
         url = "http://localhost:5000/search?&pos_rel=$gt&pos_value=0.4&randomize_results=True&max_results=1";
     }
-
+    
     if (url=="") return;
-
+    
     ofLoadURLAsync(url);
 }
 
 void ofApp::drawDebuggingTools() {
     ofSetLineWidth(2);
-
+    
     int w = 100, h = 12;
     ofPushStyle();
     ofPushMatrix();
@@ -219,7 +221,7 @@ void ofApp::drawDebuggingTools() {
     }
     ofPopMatrix();
     ofPopStyle();
-
+    
     ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
     ofShowCursor();
 }
@@ -237,7 +239,7 @@ void ofApp::draw() {
     tracker.draw();
     ofPopStyle();
     ofPopMatrix();
-
+    
     //ofCircle(faceLocation.x, faceLocation.y, 30);
     //tweet stuff
     for (int i=0; i<tweets.size(); i++) {
@@ -259,20 +261,20 @@ void ofApp::keyPressed(int key) {
         tweet.setup(font_original, location, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.", "aguy", "profile.jpg", 3);
         tweets.push_back(tweet);
     }
-	if(key == 'f') {
-		tracker.reset();
-		classifier.reset();
-	}
-	if(key == 'e') {
-		classifier.addExpression();
-	}
-	if(key == 'a') {
-		classifier.addSample(tracker);
-	}
-	if(key == 's') {
-		classifier.save("expressions");
-	}
-	if(key == 'l') {
-		classifier.load("expressions");
-	}
+    if(key == 'f') {
+        tracker.reset();
+        classifier.reset();
+    }
+    if(key == 'e') {
+        classifier.addExpression();
+    }
+    if(key == 'a') {
+        classifier.addSample(tracker);
+    }
+    if(key == 's') {
+        classifier.save("expressions");
+    }
+    if(key == 'l') {
+        classifier.load("expressions");
+    }
 }
