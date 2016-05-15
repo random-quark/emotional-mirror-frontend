@@ -14,6 +14,7 @@ To run on Ubuntu
   * ofxJSON
   * ofxOpenCv
   * ofxTrueTypeFontUC
+  * ofxXmlSettings
 * git clone https://github.com/random-quark/emotional-mirror-frontend.git (into your of/apps/myApps directory)
 * cd emotional-mirror-frontend
 * make
