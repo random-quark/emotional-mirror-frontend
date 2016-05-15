@@ -79,20 +79,18 @@ void ofApp::update() {
         
         int primaryExpression = classifier.getPrimaryExpression();
         float primaryExpressionProbability = classifier.getProbability(primaryExpression);
-        faceLineWidth = ofMap(primaryExpressionProbability, 0, 1, 0, 8);
+        faceLineWidth = 6;//ofMap(primaryExpressionProbability, 0, 1, 0, 8);
         
         float happyProbability = classifier.getProbability(HAPPY);
         float neutralProbability = classifier.getProbability(NEUTRAL);
         float sadProbability = classifier.getProbability(SAD);
+
+        ofColor r = ofColor::red;
+        ofColor g = ofColor::green;
+        float newHappyProb = happyProbability+(neutralProbability/2);
+        float newSadProb = sadProbability+(neutralProbability/2);
+        faceColor = r.getLerped(g,newHappyProb/1.0);
         
-        if (classifier.getPrimaryExpression() == NEUTRAL) {
-            faceColor = ofColor(255,255,255);
-        }
-        else {
-            faceColor = ofColor(0,0,0);
-            faceColor.g = ofMap(happyProbability, 0, 1, 0, 255);
-            faceColor.r = ofMap(sadProbability, 0, 1, 0, 255);
-        }
         
         if (happyTimer.finished() && tracker.getHaarFound()){
             if (happyProbability >= happyThreshold) {
