@@ -85,13 +85,13 @@ void ofApp::update() {
         faceLineWidth = 6;//ofMap(primaryExpressionProbability, 0, 1, 0, 8);
         
         float happyProbability = classifier.getProbability(HAPPY);
-        float neutralProbability = classifier.getProbability(NEUTRAL);
+        //float neutralProbability = classifier.getProbability(NEUTRAL);
         float sadProbability = classifier.getProbability(SAD);
 
         ofColor r = ofColor::red;
         ofColor g = ofColor::green;
-        float newHappyProb = happyProbability+(neutralProbability/2);
-        float newSadProb = sadProbability+(neutralProbability/2);
+        float newHappyProb = happyProbability;//+(neutralProbability/2);
+        float newSadProb = sadProbability;//+(neutralProbability/2);
         faceColor = r.getLerped(g,newHappyProb/1.0);
         
         

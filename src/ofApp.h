@@ -28,8 +28,8 @@
 #define LOWER_EXPRESSION_THRESHOLD 0.5
 #define UPPER_EXPRESSION_THRESHOLD 0.7
 #define HAPPY 0
-#define NEUTRAL 1
-#define SAD 2
+//#define NEUTRAL 1
+#define SAD 1
 
 class ofApp : public ofBaseApp {
 public:
