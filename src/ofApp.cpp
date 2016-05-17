@@ -262,7 +262,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, font_smaller, location, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.", "aguy", "real name", "profile.jpg", -3);
+        tweet.setup(font_original, font_smaller, location, "bad bad bad bad bad bad bad bad bad bad bad bad bad bad bad bad bad bad ", "aguy", "real name", "profile.jpg", -3);
         tweets.push_back(tweet);
     }
     if(key == 'f') {

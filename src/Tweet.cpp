@@ -37,6 +37,10 @@ void Tweet::setup(ofxTrueTypeFontUC* _font_bigger, ofxTrueTypeFontUC* _font_smal
     font_smaller = _font_smaller;
     wrappedString = Util::wrapString(text, TEXT_WIDTH, font_bigger);
     stringBox = font_bigger->getStringBoundingBox(wrappedString,0,0);
+    
+    int largestName = max(font_bigger->getStringBoundingBox(tweetAuthor, 0, 0).width + PICTURE_WIDTH_PADDING * 2, font_smaller->getStringBoundingBox(tweetHandle, 0, 0).width + PICTURE_WIDTH_PADDING * 2);
+    
+    stringBox.width = max(int(stringBox.width), largestName);
 
     alpha = 0;
     colors = getTweetColor();
