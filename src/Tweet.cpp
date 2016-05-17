@@ -11,29 +11,32 @@
 #include "ofxEasing.h"
 #include <algorithm>
 
-#define BIRD_SIZE 35
-#define BIRD_PADDING 25
 #define MIN_HEIGHT 140
 #define FBO_SAFETY_MARGIN 150
 #define SHADOW_OFFSET 15
 #define BUBBLE_TOP_LEFT_SHIFT 15  // bigger values push the text down to center it properly
+#define PICTURE_HEIGHT_PADDING 50
+#define PICTURE_WIDTH_PADDING 60
+#define TEXT_WIDTH 400
 
 Tweet::Tweet(){
 }
 
-void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetContent, string tweetAuthor, string profileImageUrl, float _moodLevel) {
+void Tweet::setup(ofxTrueTypeFontUC* _font_bigger, ofxTrueTypeFontUC* _font_smaller, ofPoint _location, string tweetContent, string _tweetHandle, string _tweetAuthor, string profileImageUrl, float _moodLevel) {
     location = _location;
 
     moodLevel = _moodLevel;
     fade = false;
     dead = false;
 
-    author = "@" + tweetAuthor;
-    text = author + " " + tweetContent;
+    tweetHandle = "@" + _tweetHandle;
+    tweetAuthor = _tweetAuthor;
+    text = tweetContent;
 
-    font = _font;
-    wrappedString = Util::wrapString(text, 350, font);
-    stringBox = font->getStringBoundingBox(wrappedString,0,0);
+    font_bigger = _font_bigger;
+    font_smaller = _font_smaller;
+    wrappedString = Util::wrapString(text, TEXT_WIDTH, font_bigger);
+    stringBox = font_bigger->getStringBoundingBox(wrappedString,0,0);
 
     alpha = 0;
     colors = getTweetColor();
@@ -43,8 +46,8 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     initLocationY = location.y;
     initLocationX = location.x;
     endLocationY = 0;
-    minX = ((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2) + 100;                      // MIN location of tweet on x-axis
-    maxX = ofGetWidth() - (stringBox.width - BIRD_SIZE + BIRD_PADDING) / 2 - 100;   // MAX location of tweet on x-axis
+    minX = (stringBox.width / 2) + 100;                      // MIN location of tweet on x-axis
+    maxX = ofGetWidth() - (stringBox.width / 2) - 100;   // MAX location of tweet on x-axis
     endLocationX = ofRandom(0, 1) > 0.5 ? minX : maxX;
     movementNoiseSeed = ofRandom(0, 1000);
 
@@ -56,8 +59,8 @@ void Tweet::setup(ofxTrueTypeFontUC* _font, ofPoint _location, string tweetConte
     noiseStep = 40;
     resamplingRate = 40;
 
-    bubbleWidth = (stringBox.width + BIRD_SIZE + BIRD_PADDING) + 40;
-    bubbleHeight = stringBox.height + 40;
+    bubbleWidth = stringBox.width + noiseStep + PICTURE_HEIGHT_PADDING/2;
+    bubbleHeight = stringBox.height + noiseStep + PICTURE_HEIGHT_PADDING/2;
 
     bubbleHeight = max(bubbleHeight, MIN_HEIGHT);
     path.rectRounded(-bubbleWidth/2, -bubbleHeight/2, bubbleWidth, bubbleHeight, cornerRadius);
@@ -182,35 +185,40 @@ void Tweet::draw() {
         ofPopMatrix();
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 
+        ofPushMatrix();
+        ofPushStyle();
+        // BIRD STUFF
+        ofSetColor(colors.birdColor);
+        ofFill();
+        ofTranslate(0, -PICTURE_HEIGHT_PADDING/2);
+        ofTranslate(-stringBox.width / 2, -stringBox.height / 2);
+        bird.draw(ofPoint(0, 0));
+        
+        ofSetColor(colors.imageColor);
+        profileImage.draw(PICTURE_WIDTH_PADDING, 0, 48, 48);
+        
+        // USERNAME STUFF
+        ofSetColor(colors.authorColor);
+        ofTranslate(PICTURE_WIDTH_PADDING * 2, font_bigger->getStringBoundingBox(tweetAuthor, 0, 0).height);
+        font_bigger->drawString(tweetAuthor, 0, 0);
+        ofTranslate(0, font_smaller->getStringBoundingBox(tweetHandle, 0, 0).height);
+        ofTranslate(0, 3); //arbitrary padding for aesthetic reasons
+        ofSetColor(colors.handleColor);
+        font_smaller->drawString(tweetHandle, 0, 0);
+        ofPopStyle();
+        ofPopMatrix();
+        
+
+        ofTranslate(0, PICTURE_HEIGHT_PADDING/2);
         // STRING STUFF
         if (!wrappedString.empty()) {
             ofSetColor(colors.textColor);
 
-            int locX = -(stringBox.width / 2) + ((BIRD_SIZE + BIRD_PADDING) / 2);
-            int locY = -(stringBox.height - font->getLineHeight() - BUBBLE_TOP_LEFT_SHIFT ) / 2;
+            int locX = -stringBox.width / 2;
+            int locY = -(stringBox.height - font_bigger->getLineHeight() - BUBBLE_TOP_LEFT_SHIFT ) / 2;
 
-            font->drawString(wrappedString, locX, locY);
-            ofSetColor(colors.authorColor);
-            font->drawString(author, locX, locY);
+            font_bigger->drawString(wrappedString, locX, locY);
         }
-        ofPopStyle();
-
-        if (abs(stringBox.height - font->getLineHeight()) < 5) {
-            ofTranslate(0, -30);
-        }
-        
-        if (abs(stringBox.height - font->getLineHeight() * 2) < 5) {
-            ofTranslate(0, -15);
-        }
-        
-        ofPushStyle();
-        ofSetColor(colors.imageColor);
-        profileImage.draw(ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height /2), 48, 48);
-
-        // BIRD STUFF
-        ofSetColor(colors.birdColor);
-        ofFill();
-        bird.draw( ofPoint(-((stringBox.width + BIRD_SIZE + BIRD_PADDING) / 2), -stringBox.height / 2 + 60));// , 50, 40.65);
         ofPopStyle();
         ofPopMatrix();
     }
@@ -232,23 +240,20 @@ void Tweet::drawBubble(){
 
 Tweet::TweetColors Tweet::getTweetColor() {
     Tweet::TweetColors colors;
-    colors.bubbleColor = ofColor(255,255,255,0);
-    colors.textColor = ofColor(50,0,0,alpha);
+    colors.bubbleColor = ofColor(255,255,255,alpha);
+    colors.textColor = ofColor(0,0,0,alpha);
     colors.authorColor = ofColor(0,0,0,alpha);
+    colors.handleColor = ofColor(125, alpha);
     colors.birdColor = ofColor(255,255,255);
     colors.shadowColor = ofColor(50, alpha*0.85);
     colors.imageColor = ofColor(255, alpha);
 
     if (moodLevel < 0) {
-        colors.bubbleColor.set(255,255,255,alpha);
-        colors.textColor.set(50,0,0,alpha);
-        colors.authorColor = ofColor(0,0,0,alpha);
+        //colors.bubbleColor.set(255,220,220,alpha);
         colors.birdColor.set(200,0,0,alpha);
-        colors.shadowColor.set(50, alpha*0.85);
     } else if (moodLevel > 0) {
-        colors.bubbleColor.set(255,255,255,alpha);
+        //colors.bubbleColor.set(220,255,220,alpha);
         colors.birdColor.set(0,200,0,alpha);
-        colors.shadowColor.set(50, alpha*0.85);
     }
 
     if (fade==true) {

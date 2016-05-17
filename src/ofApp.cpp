@@ -45,6 +45,9 @@ void ofApp::setup() {
     
     font_original = new ofxTrueTypeFontUC();
     font_original->load("OpenSansEmoji.ttf", 20, true, true);
+    font_smaller = new ofxTrueTypeFontUC();
+    font_smaller->load("OpenSansEmoji.ttf", 14, true, true);
+
 }
 
 void ofApp::update() {
@@ -161,7 +164,7 @@ void ofApp::urlResponse(ofHttpResponse & response) {
             for (Json::ArrayIndex i = 0; i < tweetsJSON.size(); i++) {
                 ofPoint location = ofPoint(faceLocation.x, faceLocation.y - 350);
                 Tweet tweet;
-                tweet.setup(font_original, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
+                tweet.setup(font_original, font_smaller, location, tweetsJSON[i]["text"].asString(), tweetsJSON[i]["username"].asString(), tweetsJSON[i]["name"].asString(), absolutePath + tweetsJSON[i]["profile_image"].asString(), tweetsJSON[i]["sentiment"]["compound"].asFloat());
                 tweets.push_back(tweet);
             }
             
@@ -259,7 +262,7 @@ void ofApp::keyPressed(int key) {
     if (key == 'c') {
         Tweet tweet;
         ofPoint location = ofPoint(ofGetWidth() / 2, ofGetHeight() - 350);
-        tweet.setup(font_original, location, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.", "aguy", "profile.jpg", 3);
+        tweet.setup(font_original, font_smaller, location, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.", "aguy", "real name", "profile.jpg", -3);
         tweets.push_back(tweet);
     }
     if(key == 'f') {

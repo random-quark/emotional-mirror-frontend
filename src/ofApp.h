@@ -63,5 +63,5 @@ public:
     string absolutePath;
 
 private:
-    ofxTrueTypeFontUC* font_original;
+    ofxTrueTypeFontUC* font_original, *font_smaller;
 };
