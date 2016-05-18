@@ -21,7 +21,7 @@
 #define CAM_SCALE 20
 #define CAMERA_WIDTH 640.0
 #define CAMERA_HEIGHT 480.0
-#define VERTICAL false
+#define VERTICAL true
 #define USE_SERVER true
 #define USE_SAMPLE_VIDEO true
 #define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
