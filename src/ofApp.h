@@ -21,8 +21,9 @@
 #define CAM_SCALE 20
 #define CAMERA_WIDTH 640.0
 #define CAMERA_HEIGHT 480.0
-#define VERTICAL true
+#define VERTICAL false
 #define USE_SERVER true
+#define USE_SAMPLE_VIDEO true
 #define MIN_MILLIS_BETWEEN_EXPRESSIONS 2000
 #define RANDOM_MILLIS_ADDED_BETWEEN_EXPRESSIONS 2000
 #define LOWER_EXPRESSION_THRESHOLD 0.5
@@ -46,6 +47,7 @@ public:
     ofImage flippedCam;
     ofxFaceTracker tracker;
     ofPoint faceLocation;
+    ofVideoPlayer sampleVideo;
     vector<Tweet> tweets;
     bool debug;
     bool searchError;
@@ -56,6 +58,7 @@ public:
     string expression;
     Timer happyTimer;
     Timer sadTimer;
+    bool sampleEnabled;
 
     string prevState;
     float happyThreshold;

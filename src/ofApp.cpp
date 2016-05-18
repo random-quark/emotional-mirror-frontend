@@ -25,6 +25,8 @@ void ofApp::setup() {
     tracker.setRescale(.5);
     classifier.load("expressions");
     
+    sampleVideo.load("tom_sample.mp4");
+    
     flippedCam.allocate(CAMERA_WIDTH, CAMERA_HEIGHT, OF_IMAGE_COLOR);
     
     ofRegisterURLNotification(this);
@@ -66,12 +68,24 @@ void ofApp::update() {
     if (VERTICAL == true) scaleRatio = ofGetHeight()/CAMERA_WIDTH;
     else scaleRatio = ofGetWidth()/CAMERA_WIDTH;
     
-    cam.update();
-    
     ofImage smallCam;
+    bool updated = false;
     
-    if(cam.isFrameNew()) {
+    if (sampleEnabled) {
+        sampleVideo.update();
+    } else {
+        cam.update();
+    }
+    
+    if (sampleEnabled && sampleVideo.isFrameNew()) {
+        flippedCam = sampleVideo.getPixels();
+        updated = true;
+    } else if (cam.isFrameNew()) {
         flippedCam = cam.getPixels();
+        updated = true;
+    }
+    
+    if (updated) {
         flippedCam.mirror(false, true);
         
         if (VERTICAL) flippedCam.rotate90(3);
@@ -280,5 +294,9 @@ void ofApp::keyPressed(int key) {
     }
     if(key == 'l') {
         classifier.load("expressions");
+    }
+    if(key == 'v' && sampleVideo.isLoaded()) {
+        sampleEnabled = !sampleEnabled;
+        sampleVideo.play();
     }
 }
