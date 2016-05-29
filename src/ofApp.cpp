@@ -77,9 +77,11 @@ void ofApp::update() {
         cam.update();
     }
     
-    if (sampleEnabled && sampleVideo.isFrameNew()) {
+    if (sampleEnabled) {
+	if (sampleVideo.isFrameNew()){
         flippedCam = sampleVideo.getPixels();
         updated = true;
+	}
     } else if (cam.isFrameNew()) {
         flippedCam = cam.getPixels();
         updated = true;
@@ -139,7 +141,7 @@ void ofApp::update() {
             if (sadProbability >= sadThreshold) {
                 if (prevState == "happy") {
                     for (int i = 0; i < tweets.size(); i++) {
-                        cout << tweets.size() << " " << i << endl;
+                        //cout << tweets.size() << " " << i << endl;
                         tweets[i].fade = true;
                     }
                 }
@@ -247,6 +249,7 @@ void ofApp::drawDebuggingTools() {
 
 void ofApp::draw() {
     ofPushMatrix();
+    if (sampleEnabled) ofTranslate(-200,0);
     //camera stuff
     ofScale(scaleRatio, scaleRatio);
     flippedCam.draw(0,0);
